@@ -1,0 +1,12 @@
+{
+    "name": "Bose.Wearable.Editor",
+    "references": [
+        "Bose.Wearable"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true
+}
