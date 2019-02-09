@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 namespace Bose.Wearable
 {
+
+    
     /// <summary>
     /// Automatically rotates a GameObject to match the orientation of the Prototype Glasses.
     /// Provides both "absolute" and "relative" rotation modes.
@@ -12,15 +14,15 @@ namespace Bose.Wearable
     [AddComponentMenu("Bose/Wearable/RotationData")]
     public class AcellerometerController : MonoBehaviour
     {
-        public Text xValueText;
+        private float actionTimer;
 
-        public Text yValueText;
-
-        public Text zValueText;
-
-        public Text xAccel;
-        public Text yAccel;
-        public Text zAccel;
+        public AudioSource intro;
+        public AudioSource left;
+        public AudioSource right;
+        public AudioSource jump;
+        public AudioSource back;
+        public AudioSource headbutt;
+        public AudioSource duck;
 
         public enum RotationReference
         {
@@ -113,33 +115,58 @@ namespace Bose.Wearable
             // Get a frame of sensor data. Since no integration is being performed, we can safely ignore all
             // intermediate frames and just grab the most recent.
             SensorFrame frame = _wearableControl.LastSensorFrame;
-            if (_mode == RotationReference.Absolute)
-            {
-                xValueText.text = frame.rotation.value.x.ToString();
+            //if (_mode == RotationReference.Absolute)
+            //{
+            //    xValueText.text = frame.rotation.value.x.ToString();
 
-                yValueText.text = frame.rotation.value.y.ToString();
+            //    yValueText.text = frame.rotation.value.y.ToString();
 
-                zValueText.text = frame.rotation.value.z.ToString();
+            //    zValueText.text = frame.rotation.value.z.ToString();
 
-                xAccel.text = frame.acceleration.value.normalized.x.ToString();
-                yAccel.text = frame.acceleration.value.y.ToString();
-                zAccel.text = frame.acceleration.value.z.ToString();
+            //    xAccel.text = frame.acceleration.value.normalized.x.ToString();
+            //    yAccel.text = frame.acceleration.value.y.ToString();
+            //    zAccel.text = frame.acceleration.value.z.ToString();
 
                 
 
-            }
+            //}
 
-            else if (_mode == RotationReference.Relative)
+            //else if (_mode == RotationReference.Relative)
 
+            //{
+
+            //    xValueText.text = frame.rotation.value.x.ToString();
+
+            //    yValueText.text = frame.rotation.value.y.ToString();
+
+            //    zValueText.text = frame.rotation.value.z.ToString();
+            //}
+
+            if (frame.acceleration.value.x > 4.0f)
             {
-
-                xValueText.text = frame.rotation.value.x.ToString();
-
-                yValueText.text = frame.rotation.value.y.ToString();
-
-                zValueText.text = frame.rotation.value.z.ToString();
+                left.Play();
+            }
+            if (frame.acceleration.value.x < -4.0f)
+            {
+                right.Play();
             }
 
+            if (frame.acceleration.value.y > 13.0f)
+            {
+                jump.Play();
+            }
+            //if (frame.acceleration.value.y < 5.0f)
+            //{
+            //    Action.text = "Y is negative";
+            //}
+            //if (frame.acceleration.value.z > 4.0f)
+            //{
+            //    Action.text = "Z is positive";
+            //}
+            //if (frame.acceleration.value.z < -4.0f)
+            //{
+            //    Action.text = "Z is negative";
+            //}
 
         }
 
