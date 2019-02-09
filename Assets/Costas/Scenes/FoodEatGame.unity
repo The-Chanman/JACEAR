@@ -282,7 +282,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4120629085027630, guid: 6c6bee7371277e543bee7652843912f2, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -32.899998
+      value: 10.8
       objectReference: {fileID: 0}
     - target: {fileID: 4120629085027630, guid: 6c6bee7371277e543bee7652843912f2, type: 2}
       propertyPath: m_LocalPosition.y
@@ -290,7 +290,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4120629085027630, guid: 6c6bee7371277e543bee7652843912f2, type: 2}
       propertyPath: m_LocalPosition.z
-      value: -12.200001
+      value: 64.5
       objectReference: {fileID: 0}
     - target: {fileID: 4120629085027630, guid: 6c6bee7371277e543bee7652843912f2, type: 2}
       propertyPath: m_LocalRotation.x
@@ -322,9 +322,48 @@ Prefab:
       propertyPath: face
       value: 
       objectReference: {fileID: 1705200034}
+    - target: {fileID: 82430903524808014, guid: 6c6bee7371277e543bee7652843912f2,
+        type: 2}
+      propertyPath: Spatialize
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 82430903524808014, guid: 6c6bee7371277e543bee7652843912f2,
+        type: 2}
+      propertyPath: SpatializePostEffects
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 82430903524808014, guid: 6c6bee7371277e543bee7652843912f2,
+        type: 2}
+      propertyPath: rolloffMode
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6c6bee7371277e543bee7652843912f2, type: 2}
   m_IsPrefabAsset: 0
+--- !u!1 &99451735 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1152851530995800, guid: 6c6bee7371277e543bee7652843912f2,
+    type: 2}
+  m_PrefabInternal: {fileID: 99451734}
+--- !u!114 &99451736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 99451735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e503ea6418d27594caa33b93cac1b06a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableSpatialization: 1
+  gain: 0
+  useInvSqr: 0
+  near: 1
+  far: 10
+  volumetricRadius: 0
+  reverbSend: 0
+  enableRfl: 0
 --- !u!1 &113728498
 GameObject:
   m_ObjectHideFlags: 0
@@ -484,7 +523,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4041569354356858, guid: 93494de3fe94f0548b8a0d1e46488812, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -24.8
+      value: 87.5
       objectReference: {fileID: 0}
     - target: {fileID: 4041569354356858, guid: 93494de3fe94f0548b8a0d1e46488812, type: 2}
       propertyPath: m_LocalPosition.y
@@ -492,7 +531,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4041569354356858, guid: 93494de3fe94f0548b8a0d1e46488812, type: 2}
       propertyPath: m_LocalPosition.z
-      value: -31.6
+      value: -101
       objectReference: {fileID: 0}
     - target: {fileID: 4041569354356858, guid: 93494de3fe94f0548b8a0d1e46488812, type: 2}
       propertyPath: m_LocalRotation.x
@@ -524,9 +563,43 @@ Prefab:
       propertyPath: face
       value: 
       objectReference: {fileID: 1705200034}
+    - target: {fileID: 82266612683184406, guid: 93494de3fe94f0548b8a0d1e46488812,
+        type: 2}
+      propertyPath: Spatialize
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 82266612683184406, guid: 93494de3fe94f0548b8a0d1e46488812,
+        type: 2}
+      propertyPath: rolloffMode
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 93494de3fe94f0548b8a0d1e46488812, type: 2}
   m_IsPrefabAsset: 0
+--- !u!1 &149124196 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1268638006158372, guid: 93494de3fe94f0548b8a0d1e46488812,
+    type: 2}
+  m_PrefabInternal: {fileID: 149124195}
+--- !u!114 &149124197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 149124196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e503ea6418d27594caa33b93cac1b06a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableSpatialization: 1
+  gain: 0
+  useInvSqr: 0
+  near: 1
+  far: 10
+  volumetricRadius: 0
+  reverbSend: 0
+  enableRfl: 0
 --- !u!1 &170076733
 GameObject:
   m_ObjectHideFlags: 0
@@ -1219,7 +1292,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4969855499910024, guid: 1b7186367d961494ab0cf59c66670e8a, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -35.199997
+      value: 10.6
       objectReference: {fileID: 0}
     - target: {fileID: 4969855499910024, guid: 1b7186367d961494ab0cf59c66670e8a, type: 2}
       propertyPath: m_LocalPosition.y
@@ -1227,7 +1300,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4969855499910024, guid: 1b7186367d961494ab0cf59c66670e8a, type: 2}
       propertyPath: m_LocalPosition.z
-      value: -44.9
+      value: -37.3
       objectReference: {fileID: 0}
     - target: {fileID: 4969855499910024, guid: 1b7186367d961494ab0cf59c66670e8a, type: 2}
       propertyPath: m_LocalRotation.x
@@ -1259,9 +1332,43 @@ Prefab:
       propertyPath: face
       value: 
       objectReference: {fileID: 1705200034}
+    - target: {fileID: 82307129023089198, guid: 1b7186367d961494ab0cf59c66670e8a,
+        type: 2}
+      propertyPath: Spatialize
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 82307129023089198, guid: 1b7186367d961494ab0cf59c66670e8a,
+        type: 2}
+      propertyPath: rolloffMode
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1b7186367d961494ab0cf59c66670e8a, type: 2}
   m_IsPrefabAsset: 0
+--- !u!1 &1358293352 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1381160317509044, guid: 1b7186367d961494ab0cf59c66670e8a,
+    type: 2}
+  m_PrefabInternal: {fileID: 1358293351}
+--- !u!114 &1358293353
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1358293352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e503ea6418d27594caa33b93cac1b06a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableSpatialization: 1
+  gain: 0
+  useInvSqr: 0
+  near: 1
+  far: 10
+  volumetricRadius: 0
+  reverbSend: 0
+  enableRfl: 0
 --- !u!1001 &1533177208
 Prefab:
   m_ObjectHideFlags: 0
@@ -1311,9 +1418,43 @@ Prefab:
       propertyPath: face
       value: 
       objectReference: {fileID: 1705200034}
+    - target: {fileID: 82636408424376582, guid: 62271c3e488fd8242ba83a764f8b8496,
+        type: 2}
+      propertyPath: Spatialize
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 82636408424376582, guid: 62271c3e488fd8242ba83a764f8b8496,
+        type: 2}
+      propertyPath: rolloffMode
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 62271c3e488fd8242ba83a764f8b8496, type: 2}
   m_IsPrefabAsset: 0
+--- !u!1 &1533177209 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1300264009878942, guid: 62271c3e488fd8242ba83a764f8b8496,
+    type: 2}
+  m_PrefabInternal: {fileID: 1533177208}
+--- !u!114 &1533177210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1533177209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e503ea6418d27594caa33b93cac1b06a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableSpatialization: 1
+  gain: 0
+  useInvSqr: 0
+  near: 1
+  far: 10
+  volumetricRadius: 0
+  reverbSend: 0
+  enableRfl: 0
 --- !u!1 &1705200034
 GameObject:
   m_ObjectHideFlags: 0
@@ -1628,8 +1769,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1.3075299, y: 1.2332277, z: 0.4790355}
-  m_Center: {x: -0.014052719, y: 0.022296429, z: -0.6733623}
+  m_Size: {x: 1.3075299, y: 1.2332277, z: 0.51754117}
+  m_Center: {x: -0.014052749, y: 0.022296429, z: 0.6561978}
 --- !u!1 &1765955488
 GameObject:
   m_ObjectHideFlags: 0
