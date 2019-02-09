@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour {
 
-    public float timeTillNextLevel = 0.0f;
+    public float timeTillNextLevel = 100000.0f;
 
 	// Use this for initialization
 	void Start () {
