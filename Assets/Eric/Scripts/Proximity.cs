@@ -5,10 +5,12 @@ using UnityEngine.Events;
 public class Proximity : MonoBehaviour {
  
     public GameObject player;  
+    public AudioSource audioPlayer;
+    public float threshold = 10f;
     public bool PlayedAudioOnEnter = false;
     private Vector3 currentPos;
     private Vector3 playerDistance;
-    public AudioSource audioPlayer;
+   
 
     void Start () {
         currentPos = transform.position;
@@ -20,13 +22,13 @@ public class Proximity : MonoBehaviour {
         playerDistance = player.transform.position - v;
         float magnitude = playerDistance.magnitude;
         Debug.Log(magnitude);
-        if(magnitude <= 10f){
+        if(magnitude <= threshold){
             if(!PlayedAudioOnEnter){
                 audioPlayer.Play();
                 PlayedAudioOnEnter = true;
             }
         }
-        if(magnitude > 10f){
+        if(magnitude > threshold){
             PlayedAudioOnEnter = false;
         }
     }
