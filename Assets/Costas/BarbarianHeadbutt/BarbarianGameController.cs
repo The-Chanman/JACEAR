@@ -32,6 +32,8 @@ namespace Bose.Wearable
         public AudioSource delayedPoint;
 
         private AudioSource[] audioSources;
+        private float localTime;
+        private LevelManager levelManager;
 
         public enum RotationReference
         {
@@ -118,6 +120,14 @@ namespace Bose.Wearable
 
         private void Update()
         {
+            if (localTime > 60f)
+            {
+                levelManager.LoadNextScene();
+                levelManager.UnloadScene(levelManager.currentIndex);
+            }
+
+            localTime += Time.deltaTime;
+
             if (_wearableControl.ConnectedDevice == null)
             {
                 return;

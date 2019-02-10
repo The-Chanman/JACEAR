@@ -9,6 +9,7 @@ namespace Bose.Wearable
 	[RequireComponent(typeof(CanvasGroup), typeof(Canvas))]
 	public class WearableConnectUIPanel : Singleton<WearableConnectUIPanel>, ISelectionController<Device>
 	{
+
 		/// <summary>
 		/// Invoked when a device search has started.
 		/// </summary>
@@ -220,6 +221,8 @@ namespace Bose.Wearable
 			}
 
 			ToggleLockScreen(true);
+            
+            
 		}
 
 		private void OnDeviceConnectFailure()
