@@ -813,7 +813,7 @@ GameObject:
   - component: {fileID: 934038766}
   - component: {fileID: 934038765}
   - component: {fileID: 934038763}
-  - component: {fileID: 934038764}
+  - component: {fileID: 934038769}
   m_Layer: 0
   m_Name: RotatyCube
   m_TagString: Untagged
@@ -832,26 +832,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2473de429d55f45a3b8c7d55f0fdc6bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &934038764
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 934038762}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d7c0f38244229d4095d552cded79724, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  randomAudioClips:
-  - {fileID: 8300000, guid: 28101e77f0e460a4e9a28ce1894d167c, type: 3}
-  - {fileID: 8300000, guid: cdb5413a325a1ab45ba036aac697fffb, type: 3}
-  - {fileID: 8300000, guid: 597478e3e3b35264887a952c6452f498, type: 3}
-  - {fileID: 8300000, guid: d309dda6f9f0faa408cd1eecc5d4d830, type: 3}
-  - {fileID: 8300000, guid: 23d405091b1930045aed6f83531af08d, type: 3}
-  - {fileID: 8300000, guid: 96f7fd18fee192143bc23dad0e5fbdee, type: 3}
-  - {fileID: 8300000, guid: b65bcbd7e20abb94daea460d0285f3e8, type: 3}
-  - {fileID: 8300000, guid: ad0d166805e122040a11e2f5520a7c79, type: 3}
 --- !u!65 &934038765
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -919,6 +899,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &934038769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 934038762}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6aa158226f6bbaa4e92a034d037ffbaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  start: {fileID: 8300000, guid: 57e4838055dec804aa1063e4c2039939, type: 3}
+  zero: {fileID: 8300000, guid: 221359ff2aafbb94e993a4d007755b05, type: 3}
+  end: {fileID: 8300000, guid: 34ed208249a0ed0479479b253d0fa636, type: 3}
+  you_got: {fileID: 8300000, guid: e37aabb00e0fae849a89fe187987ce13, type: 3}
 --- !u!1 &1166190913
 GameObject:
   m_ObjectHideFlags: 0
