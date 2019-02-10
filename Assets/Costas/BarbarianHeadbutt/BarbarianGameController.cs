@@ -139,6 +139,10 @@ namespace Bose.Wearable
                 {
                     oof.Play();
                     hurt = false;
+                    if (Globals.score > 0)
+                    {
+                        Globals.score--;
+                    }
                 }
                 actionTaken = false;
             }
@@ -160,24 +164,26 @@ namespace Bose.Wearable
                     if (direction == 1)
                     {
                         delayedPoint.Play();
+                        Globals.score++;
                     }
                     else
                     {
-                        oof.Play();
+                        hurt = true;
                     }
                     actionTaken = true;
                 }
-                if (frame.acceleration.value.x < -4.0f)
+                else if (frame.acceleration.value.x < -4.0f)
                 {
                     //left
                     grunt.Play();
                     if (direction == 0)
                     {
                         delayedPoint.Play();
+                        Globals.score++;
                     }
                     else
                     {
-                        oof.Play();
+                        hurt = true;
                     }
                     actionTaken = true;
                 }
@@ -189,24 +195,26 @@ namespace Bose.Wearable
                     if (direction == 4)
                     {
                         delayedPoint.Play();
+                        Globals.score++;
                     }
                     else
                     {
-                        oof.Play();
+                        hurt = true;
                     }
                     actionTaken = true;
                 }
-                if (frame.acceleration.value.y < 5.0f)
+                else if (frame.acceleration.value.y < 5.0f)
                 {
                     //up
                     grunt.Play();
                     if (direction == 2)
                     {
                         delayedPoint.Play();
+                        Globals.score++;
                     }
                     else
                     {
-                        oof.Play();
+                        hurt = true;
                     }
                     actionTaken = true;
                 }
@@ -214,27 +222,29 @@ namespace Bose.Wearable
                 {
                     //forward
                     headbutt.Play();
-                    if (direction == 3)
-                    {
-                        delayedPoint.Play();
-                    }
-                    else
-                    {
-                        oof.Play();
-                    }
-                    actionTaken = true;
-                }
-                if (frame.acceleration.value.z < -4.0f)
-                {
-                    //back
-                    grunt.Play();
                     if (direction == 5)
                     {
                         delayedPoint.Play();
+                        Globals.score++;
                     }
                     else
                     {
-                        oof.Play();
+                        hurt = true;
+                    }
+                    actionTaken = true;
+                }
+                else if (frame.acceleration.value.z < -4.0f)
+                {
+                    //back
+                    grunt.Play();
+                    if (direction == 3)
+                    {
+                        delayedPoint.Play();
+                        Globals.score++;
+                    }
+                    else
+                    {
+                        hurt = true;
                     }
                     actionTaken = true;
                 }

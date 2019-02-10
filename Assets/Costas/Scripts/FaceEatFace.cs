@@ -22,6 +22,7 @@ public class FaceEatFace : MonoBehaviour {
         {
             Destroy(collision.gameObject);
             nomnom.Play();
+            Globals.score++;
         }
     }
 }
