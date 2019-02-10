@@ -29,6 +29,7 @@ namespace Bose.Wearable
         public AudioSource headbutt;
         public AudioSource oof;
         public AudioSource grunt;
+        public AudioSource delayedPoint;
 
         private AudioSource[] audioSources;
 
@@ -154,18 +155,30 @@ namespace Bose.Wearable
             {
                 if (frame.acceleration.value.x > 4.0f)
                 {
-                    //left
+                    //right
                     grunt.Play();
-                    if (direction == 0)
+                    if (direction == 1)
                     {
-
+                        delayedPoint.Play();
+                    }
+                    else
+                    {
+                        oof.Play();
                     }
                     actionTaken = true;
                 }
                 if (frame.acceleration.value.x < -4.0f)
                 {
-                    //right
+                    //left
                     grunt.Play();
+                    if (direction == 0)
+                    {
+                        delayedPoint.Play();
+                    }
+                    else
+                    {
+                        oof.Play();
+                    }
                     actionTaken = true;
                 }
 
@@ -173,24 +186,56 @@ namespace Bose.Wearable
                 {
                     //down
                     grunt.Play();
+                    if (direction == 4)
+                    {
+                        delayedPoint.Play();
+                    }
+                    else
+                    {
+                        oof.Play();
+                    }
                     actionTaken = true;
                 }
                 if (frame.acceleration.value.y < 5.0f)
                 {
                     //up
                     grunt.Play();
+                    if (direction == 2)
+                    {
+                        delayedPoint.Play();
+                    }
+                    else
+                    {
+                        oof.Play();
+                    }
                     actionTaken = true;
                 }
                 if (frame.acceleration.value.z > 4.0f)
                 {
                     //forward
                     headbutt.Play();
+                    if (direction == 3)
+                    {
+                        delayedPoint.Play();
+                    }
+                    else
+                    {
+                        oof.Play();
+                    }
                     actionTaken = true;
                 }
                 if (frame.acceleration.value.z < -4.0f)
                 {
                     //back
                     grunt.Play();
+                    if (direction == 5)
+                    {
+                        delayedPoint.Play();
+                    }
+                    else
+                    {
+                        oof.Play();
+                    }
                     actionTaken = true;
                 }
             }
