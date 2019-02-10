@@ -23,6 +23,8 @@ public class FindTheSound : MonoBehaviour {
             audioS.Play();
             audioS.loop = true;
             audioS.spatialBlend = 1;
+            audioS.spatialize = true;
+            go.AddComponent<ONSPAudioSource>();
         }
     }
 	
