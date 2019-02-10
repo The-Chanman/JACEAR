@@ -25,6 +25,7 @@ GameObject:
   - component: {fileID: 114227961669556044}
   - component: {fileID: 82636408424376582}
   - component: {fileID: 54326662251773590}
+  - component: {fileID: 114353950602253836}
   m_Layer: 0
   m_Name: Tomato
   m_TagString: food
@@ -130,14 +131,14 @@ AudioSource:
   m_Pitch: 1
   Loop: 1
   Mute: 0
-  Spatialize: 0
+  Spatialize: 1
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
   Pan2D: 0
-  rolloffMode: 1
+  rolloffMode: 0
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -221,6 +222,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e74320a82663764fa7e95a0013f21f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
-  face: {fileID: 0}
+  player: {fileID: 1461689449057356, guid: c15004a22d06e804dad50c3fe50c72ad, type: 2}
+  face: {fileID: 1304728695481448, guid: 6d999f0eb0c927b45b0471c96aa780c7, type: 2}
   speed: 1.5
+--- !u!114 &114353950602253836
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1300264009878942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e503ea6418d27594caa33b93cac1b06a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableSpatialization: 1
+  gain: 0
+  useInvSqr: 0
+  near: 1
+  far: 10
+  volumetricRadius: 0
+  reverbSend: 0
+  enableRfl: 0

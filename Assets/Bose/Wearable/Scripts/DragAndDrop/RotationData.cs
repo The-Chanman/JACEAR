@@ -22,6 +22,11 @@ namespace Bose.Wearable
         public Text yAccel;
         public Text zAccel;
 
+        public Text xAccelNorm;
+        public Text yAccelNorm;
+        public Text zAccelNorm;
+
+
         public Text Action;
 
         public enum RotationReference
@@ -128,6 +133,9 @@ namespace Bose.Wearable
                 yAccel.text = frame.acceleration.value.y.ToString();
                 zAccel.text = frame.acceleration.value.z.ToString();
 
+                //xAccelNorm.text = frame.acceleration.value.x.ToString();
+                //yAccelNorm.text = frame.acceleration.value.y.ToString();
+                //zAccelNorm.text = frame.acceleration.value.z.ToString();
 
             }
 

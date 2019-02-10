@@ -1253,7 +1253,7 @@ MonoBehaviour:
     _portNumber: 0
     _hostname: 
   _editorDefaultProvider: 3
-  _runtimeDefaultProvider: 1
+  _runtimeDefaultProvider: 3
 --- !u!4 &2006345961
 Transform:
   m_ObjectHideFlags: 0

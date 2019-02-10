@@ -15,11 +15,14 @@ public class BallLauncher : MonoBehaviour {
 	void Update () {
        // if (Input.GetButtonDown("Fire1"))
         {
+            
+        }
+    }
+    void Spawn () {
             GameObject instance = Instantiate(ballPrefab);
             instance.transform.position = transform.position;
             Rigidbody rb = instance.GetComponent<Rigidbody>();
             Camera camera = GetComponentInChildren<Camera>();
             rb.velocity = camera.transform.rotation * Vector3.forward * ballSpeed;
-        }
     }
 }

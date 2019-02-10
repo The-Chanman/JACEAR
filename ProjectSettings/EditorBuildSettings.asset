@@ -5,13 +5,13 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/SampleScene.unity
-    guid: f7e71363f2ae2554ea4425e6061ca614
   - enabled: 1
-    path: Assets/Josh(Best folder)/_Scenes/02_Game.unity
-    guid: df33a4b59f1d3614d9010cf39527340f
-  - enabled: 0
-    path: Assets/Eric/Scenes/EricScene.unity
-    guid: f6009411150644ff4a81dedbca1bb0a3
+    path: Assets/Scenes/GameScene.unity
+    guid: 1134839b2b17cff4ba89bdddb5ad6cfc
+  - enabled: 1
+    path: Assets/Scenes/FinalBarbarianGame.unity
+    guid: 4cd12d930e0bfa64486c740346567014
+  - enabled: 1
+    path: Assets/Scenes/FinalFoodEatGame.unity
+    guid: cb9a3add714516b47904c28b8d089f12
   m_configObjects: {}
