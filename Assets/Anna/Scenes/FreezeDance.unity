@@ -1354,7 +1354,9 @@ MonoBehaviour:
   xAccel: {fileID: 345296773}
   yAccel: {fileID: 385067874}
   zAccel: {fileID: 1166190915}
-  accelerationVectorText: {fileID: 1518143559}
+  xAccelNorm: {fileID: 0}
+  yAccelNorm: {fileID: 0}
+  zAccelNorm: {fileID: 0}
   Action: {fileID: 113728499}
 --- !u!1 &2006345959
 GameObject:

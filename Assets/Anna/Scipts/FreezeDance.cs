@@ -24,9 +24,9 @@ public class FreezeDance : MonoBehaviour {
     private float timeleft = 50;
     private float changeVolTime;
 
-    private float xPos;
-    private float yPos;
-    private float zPos;
+    private float xRot;
+    private float yRot;
+    private float zRot;
 
 
     // Use this for initialization
@@ -101,16 +101,16 @@ public class FreezeDance : MonoBehaviour {
 
     private void FreezePosition()
     {
-        xPos = RotationData.xValue;
-        yPos = RotationData.yValue;
-        zPos = RotationData.zValue;
+        xRot = gameObject.transform.rotation.x;
+        yRot = gameObject.transform.rotation.y;
+        zRot = gameObject.transform.rotation.z;
     }
 
     private bool CheckMove()
     {
-        if( (Mathf.Abs(RotationData.xValue - xPos) > 0.03) ||
-            (Mathf.Abs(RotationData.yValue - yPos) > 0.03) ||
-            (Mathf.Abs(RotationData.zValue - zPos) > 0.03))
+        if( (Mathf.Abs(gameObject.transform.rotation.x - xRot) > 0.03) ||
+            (Mathf.Abs(gameObject.transform.rotation.y - yRot) > 0.03) ||
+            (Mathf.Abs(gameObject.transform.rotation.z - zRot) > 0.03))
         {
             return true;
         }
