@@ -697,6 +697,11 @@ Prefab:
       propertyPath: m_PlayOnAwake
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 82500217627952356, guid: 0ea3995b16830a4469dc39a6c560ffe7,
+        type: 2}
+      propertyPath: BypassEffects
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0ea3995b16830a4469dc39a6c560ffe7, type: 2}
   m_IsPrefabAsset: 0
@@ -1165,7 +1170,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1661588087}
   - component: {fileID: 1661588086}
-  - component: {fileID: 1661588085}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1173,13 +1177,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &1661588085
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1661588084}
-  m_Enabled: 1
 --- !u!20 &1661588086
 Camera:
   m_ObjectHideFlags: 0

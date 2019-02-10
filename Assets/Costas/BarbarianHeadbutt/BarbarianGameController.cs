@@ -16,8 +16,9 @@ namespace Bose.Wearable
         private bool actionTaken = false;
         private bool turnStart;
         private float turnTimer;
-        private float turnSpeed = 8f;
+        private float turnSpeed = 4f;
         private bool hurt = false;
+        private int direction;
 
         public AudioSource intro;
         public AudioSource left;
@@ -89,7 +90,7 @@ namespace Bose.Wearable
             _mode = RotationReference.Absolute;
             _inverseReference = Quaternion.identity;
             // Get audiosources
-            audioSources = gameObject.GetComponents<AudioSource>();
+            audioSources = new AudioSource[] { left, right, jump, back, duck };
         }
 
         private void OnEnable()
@@ -128,7 +129,9 @@ namespace Bose.Wearable
             if (turnStart)
             {
                 //Pick audio clip
-                audioSources[Random.Range(1, 6)].Play();
+                direction = Random.Range(0, audioSources.Length);
+                //Play direction
+                audioSources[direction].Play();
                 //Start turn timer
                 turnTimer = turnSpeed;
                 if (hurt)
@@ -151,32 +154,42 @@ namespace Bose.Wearable
             {
                 if (frame.acceleration.value.x > 4.0f)
                 {
+                    //left
                     grunt.Play();
+                    if (direction == 0)
+                    {
+
+                    }
                     actionTaken = true;
                 }
                 if (frame.acceleration.value.x < -4.0f)
                 {
+                    //right
                     grunt.Play();
                     actionTaken = true;
                 }
 
                 if (frame.acceleration.value.y > 13.0f)
                 {
+                    //down
                     grunt.Play();
                     actionTaken = true;
                 }
                 if (frame.acceleration.value.y < 5.0f)
                 {
+                    //up
                     grunt.Play();
                     actionTaken = true;
                 }
                 if (frame.acceleration.value.z > 4.0f)
                 {
+                    //forward
                     headbutt.Play();
                     actionTaken = true;
                 }
                 if (frame.acceleration.value.z < -4.0f)
                 {
+                    //back
                     grunt.Play();
                     actionTaken = true;
                 }
