@@ -155,18 +155,18 @@ namespace Bose.Wearable
             {
                 jump.Play();
             }
-            //if (frame.acceleration.value.y < 5.0f)
-            //{
-            //    Action.text = "Y is negative";
-            //}
-            //if (frame.acceleration.value.z > 4.0f)
-            //{
-            //    Action.text = "Z is positive";
-            //}
-            //if (frame.acceleration.value.z < -4.0f)
-            //{
-            //    Action.text = "Z is negative";
-            //}
+            if (frame.acceleration.value.y < 5.0f)
+            {
+                duck.Play();
+            }
+            if (frame.acceleration.value.z > 4.0f)
+            {
+                headbutt.Play();
+            }
+            if (frame.acceleration.value.z < -4.0f)
+            {
+                back.Play();
+            }
 
         }
 
