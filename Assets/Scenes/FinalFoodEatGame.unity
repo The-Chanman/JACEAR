@@ -191,11 +191,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
+  fuckshit: {fileID: 2083193896}
   food:
   - {fileID: 1152851530995800, guid: 6c6bee7371277e543bee7652843912f2, type: 2}
   - {fileID: 1268638006158372, guid: 93494de3fe94f0548b8a0d1e46488812, type: 2}
   - {fileID: 1381160317509044, guid: 1b7186367d961494ab0cf59c66670e8a, type: 2}
   - {fileID: 1300264009878942, guid: 62271c3e488fd8242ba83a764f8b8496, type: 2}
+  levelManager: {fileID: 0}
 --- !u!65 &446817834
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -310,3 +312,31 @@ Prefab:
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c15004a22d06e804dad50c3fe50c72ad, type: 2}
   m_IsPrefabAsset: 0
+--- !u!1 &2083193895
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2083193896}
+  m_Layer: 0
+  m_Name: FoodSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2083193896
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2083193895}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
