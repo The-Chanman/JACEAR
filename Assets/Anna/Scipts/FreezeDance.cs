@@ -10,19 +10,24 @@ public class FreezeDance : MonoBehaviour {
     public AudioClip right;
     public AudioClip wrong;
     public AudioClip intro;
+    public AudioClip dance;
+    public AudioClip done;
 
 
     private AudioSource audioRight;
     private AudioSource audioWrong;
     private AudioSource audioIntro;
+    private AudioSource audioDance;
+    private AudioSource audioDone;
 
 
     private AudioSource songPlayer;
 
-    public int finalPoints;
+    public int finalPoints = 200;
 
     private float timeleft = 50;
     private float changeVolTime;
+    private float updateMoveCheck = 1f;
 
     private float xRot;
     private float yRot;
@@ -54,12 +59,22 @@ public class FreezeDance : MonoBehaviour {
         // add the necessary AudioSources:
         audioRight = AddAudio(right, false, true, 1);
         audioWrong = AddAudio(wrong, false, true, 1);
-        audioIntro = AddAudio(wrong, false, true, 1);
-
+        audioIntro = AddAudio(intro, false, true, 1);
+        audioDance = AddAudio(dance, false, true, 1);
+        audioDone = AddAudio(done, false, true, 1);
     }
 
     // Update is called once per frame
     void Update () {
+        if(!songPlayer.isPlaying || finalPoints <= 0)
+        {
+            if(finalPoints < 0)
+            {
+                finalPoints = 0;
+            }
+            Globals.score += finalPoints;
+            audioDone.Play();
+        }
         timeleft -= Time.deltaTime;
         if(timeleft < changeVolTime)
         {
@@ -76,7 +91,7 @@ public class FreezeDance : MonoBehaviour {
                 {
                     FreezePosition(); //reset position to give them another chance
                     audioWrong.Play(); //play buzz if they move
-                    //points--
+                    finalPoints-= 15;
                 }
             
                 if (timeleft < changeVolTime - 5)
@@ -91,11 +106,23 @@ public class FreezeDance : MonoBehaviour {
         }
         else //check that person is actually moving
         {
-
-            //if(Mathf.Abs(9.81 - RotationData.accelerationVector) < 1)
-            //{
-            //TODO 
-            //}
+            if (Time.time >= updateMoveCheck)
+            {
+                updateMoveCheck = Mathf.FloorToInt(Time.time) + 1f;
+                if (!CheckMove())
+                {
+                    if (!audioDance.isPlaying)
+                    {
+                        //audioDance.Play();
+                        finalPoints-= 15;
+                    }
+                    
+                }
+            }
+            else
+            {
+                FreezePosition();
+            }
         }
     }
 
