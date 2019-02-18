@@ -1006,12 +1006,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ced408a43e69b27448c6646764029a40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  min: 9.4
+  max: 10.2
+  curAcc: 0
   right: {fileID: 8300000, guid: 672921eb48b61674c817eca51186014b, type: 3}
   wrong: {fileID: 8300000, guid: 3c32c2985354074449a69812b8a90c34, type: 3}
-  intro: {fileID: 0}
-  dance: {fileID: 8300000, guid: 8b3d780619536cc408db10ac209f230b, type: 3}
+  intro: {fileID: 8300000, guid: 57e4838055dec804aa1063e4c2039939, type: 3}
   done: {fileID: 8300000, guid: 34ed208249a0ed0479479b253d0fa636, type: 3}
-  finalPoints: 0
+  danceHarderAudioClips:
+  - {fileID: 8300000, guid: 8b3d780619536cc408db10ac209f230b, type: 3}
+  finalPoints: 200
 --- !u!1 &1166190913
 GameObject:
   m_ObjectHideFlags: 0
