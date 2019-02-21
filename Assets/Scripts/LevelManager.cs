@@ -11,6 +11,9 @@ public class LevelManager : MonoBehaviour {
     public int currentIndex;
     private int sceneToUnLoad;
     public WearableConnectUIPanel w;
+    public bool gameStart = false;
+    public GameObject newGameButton;
+    public GameObject restartButton;
 
     // Use this for initialization
 
@@ -25,7 +28,7 @@ public class LevelManager : MonoBehaviour {
         w.DeviceConnectSuccess -= OnConnect;
 
     }
-    
+
     public void OnConnect()
     {
         currentIndex = startingLevel;
@@ -35,58 +38,62 @@ public class LevelManager : MonoBehaviour {
         curTime = timeTillNextLevel;
     }
     // Update is called once per frame
- /*   void Update() {
-        if (curTime > 0)
-        {
-            curTime -= Time.deltaTime;
-            if (curTime < 0)
-            {
-                int curLevel = currentIndex + 1;
-                if (!(curLevel >= SceneManager.sceneCountInBuildSettings))
-                {
-                    LoadNextScene(curLevel);
-                    UnloadScene(currentIndex);
-                    curTime = timeTillNextLevel;
-                    currentIndex++;
-                }
-                else
-                {
-                    currentIndex = startingLevel;
-                    LoadNextScene(curLevel);
-                    UnloadScene(currentIndex);
-                    curTime = timeTillNextLevel;
-                    currentIndex++;
-                }
-                Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + curLevel);
-            }
-        }
-    } */
+    /*   void Update() {
+           if (curTime > 0)
+           {
+               curTime -= Time.deltaTime;
+               if (curTime < 0)
+               {
+                   int curLevel = currentIndex + 1;
+                   if (!(curLevel >= SceneManager.sceneCountInBuildSettings))
+                   {
+                       LoadNextScene(curLevel);
+                       UnloadScene(currentIndex);
+                       curTime = timeTillNextLevel;
+                       currentIndex++;
+                   }
+                   else
+                   {
+                       currentIndex = startingLevel;
+                       LoadNextScene(curLevel);
+                       UnloadScene(currentIndex);
+                       curTime = timeTillNextLevel;
+                       currentIndex++;
+                   }
+                   Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + curLevel);
+               }
+           }
+       } */
 
     void Update()
     {
-        if (curTime > 0)
+        if (gameStart)
         {
-            curTime -= Time.deltaTime;
-        }
-        else if (curTime < 0)
-        {
-            
-            Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Time has reached less than 0");
-            sceneToUnLoad = currentIndex;
-            currentIndex ++;
-            if(currentIndex >= SceneManager.sceneCountInBuildSettings)
+            if (curTime > 0)
             {
-                currentIndex = startingLevel;
-                Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ We are going to load this scene WE INSIDE THE IF: " + currentIndex);
+                curTime -= Time.deltaTime;
             }
-            Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ We are going to unload this scene: " + sceneToUnLoad);
-            UnloadScene(sceneToUnLoad);
-            Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ We are going to load this scene: " + currentIndex);
-            LoadNextScene(currentIndex);
-            
-            curTime = timeTillNextLevel;
+            else if (curTime < 0)
+            {
 
+                //Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Time has reached less than 0");
+                sceneToUnLoad = currentIndex;
+                currentIndex++;
+                if (currentIndex >= SceneManager.sceneCountInBuildSettings)
+                {
+                    currentIndex = startingLevel;
+                    //Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ We are going to load this scene WE INSIDE THE IF: " + currentIndex);
+                }
+                //Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ We are going to unload this scene: " + sceneToUnLoad);
+                UnloadScene(sceneToUnLoad);
+                //Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ We are going to load this scene: " + currentIndex);
+                LoadNextScene(currentIndex);
+
+                curTime = timeTillNextLevel;
+
+            }
         }
+
     }
 
     public void LoadNextScene(int scene)
@@ -101,7 +108,33 @@ public class LevelManager : MonoBehaviour {
     }
 
     public void UnloadScene(int scene)
-    { 
+    {
         SceneManager.UnloadScene(scene);
     }
+
+    public void startGame()
+    {
+
+        gameStart = true;
+
+        newGameButton.SetActive(false);
+        
+        restartButton.SetActive(true);
+
+    }
+
+    public void restartGame()
+    {
+        //Resets Score
+        Globals.score = 0;
+        newGameButton.SetActive(true);
+        restartButton.SetActive(false);
+
+    }
+
+    public void skipGame()
+    {
+        curTime = 0;
+    }
+
 }
