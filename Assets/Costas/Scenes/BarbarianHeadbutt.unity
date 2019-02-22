@@ -1101,7 +1101,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 2e63a893cdda1974a82b91fbbf5f8f61, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -1523,6 +1523,9 @@ MonoBehaviour:
   xAccel: {fileID: 345296773}
   yAccel: {fileID: 385067874}
   zAccel: {fileID: 1166190915}
+  xAccelNorm: {fileID: 0}
+  yAccelNorm: {fileID: 0}
+  zAccelNorm: {fileID: 0}
   Action: {fileID: 113728499}
 --- !u!1 &2006345959
 GameObject:

@@ -17,7 +17,7 @@ namespace Bose.Wearable
         private bool turnStart;
         private float turnTimer;
         private float turnSpeed = 4f;
-        private bool hurt = false;
+        private bool hurt;
         private int direction;
         
 
@@ -89,6 +89,8 @@ namespace Bose.Wearable
             // Begin in absolute mode and cache the wearable controller.
             _wearableControl = WearableControl.Instance;
             _wearableControl.DeviceConnected += OnDeviceConnected;
+
+            hurt = false;
 
             _mode = RotationReference.Absolute;
             _inverseReference = Quaternion.identity;

@@ -17,8 +17,6 @@ public class UIController : MonoBehaviour {
         scoreText = score.GetComponent<TextMeshProUGUI>();
         highScoreText = highScore.GetComponent<TextMeshProUGUI>();
 
-
-
     }
 	
 	// Update is called once per frame

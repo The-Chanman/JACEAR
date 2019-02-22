@@ -6,18 +6,20 @@ using Bose.Wearable;
 public class LevelManager : MonoBehaviour {
 
     public float timeTillNextLevel = 60.0f;
-    private float curTime;
+    public float curTime;
     public int startingLevel = 1;
     public int currentIndex;
     private int sceneToUnLoad;
     public WearableConnectUIPanel w;
-    public bool gameStart = false;
+    public bool gameStart;
     public GameObject newGameButton;
     public GameObject restartButton;
 
     // Use this for initialization
 
     void Start() {
+        gameStart = false;
+
         w = FindObjectOfType<WearableConnectUIPanel>();
         currentIndex = SceneManager.GetActiveScene().buildIndex;
         Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ This is the current index " + currentIndex);
@@ -33,9 +35,9 @@ public class LevelManager : MonoBehaviour {
     {
         currentIndex = startingLevel;
         Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ We are going to load this scene: " + startingLevel);
-        LoadNextScene(startingLevel);
+        //LoadNextScene(startingLevel);
         Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ New current index is: " + currentIndex);
-        curTime = timeTillNextLevel;
+        //curTime = timeTillNextLevel;
     }
     // Update is called once per frame
     /*   void Update() {
@@ -117,6 +119,10 @@ public class LevelManager : MonoBehaviour {
 
         gameStart = true;
 
+        LoadNextScene(startingLevel);
+
+        curTime = timeTillNextLevel;
+
         newGameButton.SetActive(false);
         
         restartButton.SetActive(true);
@@ -134,7 +140,7 @@ public class LevelManager : MonoBehaviour {
 
     public void skipGame()
     {
-        curTime = 0;
+        curTime = -1f;
     }
 
 }
