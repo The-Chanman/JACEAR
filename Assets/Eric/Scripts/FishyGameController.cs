@@ -8,16 +8,23 @@ public class FishyGameController : MonoBehaviour {
 	public GameObject goal;
 	public AudioSource intro;
 	public AudioSource success;
-
+  public float spawnTimer;
 
 	// Use this for initialization
 	void Start () {
 		SpawnGoal();
+    spawnTimer = 0;
 	}
 
 	// Update is called once per frame
 	void Update () {
-
+    spawnTimer += Time.deltaTime;
+		if (spawnTimer >= 6)
+		{
+				//pick random food
+				SpawnGoal();
+				spawnTimer = 0;
+		}
 	}
 
 	void SpawnGoal() {

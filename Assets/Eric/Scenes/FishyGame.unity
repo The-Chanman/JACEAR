@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311947, g: 0.38074, b: 0.35872698, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -152,9 +152,55 @@ Prefab:
       propertyPath: m_RootOrder
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 82118110125158686, guid: c407382029ad1ca44b38a29269478fcc,
+        type: 2}
+      propertyPath: m_audioClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 2e63a893cdda1974a82b91fbbf5f8f61, type: 3}
+    - target: {fileID: 82118110125158686, guid: c407382029ad1ca44b38a29269478fcc,
+        type: 2}
+      propertyPath: OutputAudioMixerGroup
+      value: 
+      objectReference: {fileID: 24300002, guid: 56e73898fe16e88498f9a8fe7c1ece3f,
+        type: 2}
+    - target: {fileID: 114955876596744224, guid: c407382029ad1ca44b38a29269478fcc,
+        type: 2}
+      propertyPath: success
+      value: 
+      objectReference: {fileID: 671088029}
+    - target: {fileID: 114955876596744224, guid: c407382029ad1ca44b38a29269478fcc,
+        type: 2}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 951088125}
+    - target: {fileID: 114955876596744224, guid: c407382029ad1ca44b38a29269478fcc,
+        type: 2}
+      propertyPath: clockwise
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 114955876596744224, guid: c407382029ad1ca44b38a29269478fcc,
+        type: 2}
+      propertyPath: movementSpeed
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 114955876596744224, guid: c407382029ad1ca44b38a29269478fcc,
+        type: 2}
+      propertyPath: counterClockwise
+      value: -15
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c407382029ad1ca44b38a29269478fcc, type: 2}
   m_IsPrefabAsset: 0
+--- !u!82 &671088029 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 82118110125158686, guid: c407382029ad1ca44b38a29269478fcc,
+    type: 2}
+  m_PrefabInternal: {fileID: 671088028}
+--- !u!1 &951088125 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1753772394098708, guid: c407382029ad1ca44b38a29269478fcc,
+    type: 2}
+  m_PrefabInternal: {fileID: 671088028}
 --- !u!1 &1538182388
 GameObject:
   m_ObjectHideFlags: 0
@@ -200,6 +246,7 @@ MonoBehaviour:
   goal: {fileID: 1062487110731444, guid: 552a69ca23b7f0248a70e56e2806f5ac, type: 2}
   intro: {fileID: 0}
   success: {fileID: 0}
+  spawnTimer: 0
 --- !u!1 &1914090721
 GameObject:
   m_ObjectHideFlags: 0
@@ -209,7 +256,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1914090724}
   - component: {fileID: 1914090723}
-  - component: {fileID: 1914090722}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -217,13 +263,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &1914090722
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1914090721}
-  m_Enabled: 1
 --- !u!20 &1914090723
 Camera:
   m_ObjectHideFlags: 0
