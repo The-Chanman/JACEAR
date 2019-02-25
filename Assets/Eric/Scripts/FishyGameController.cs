@@ -7,19 +7,19 @@ public class FishyGameController : MonoBehaviour {
 	public Vector3 size;
 	public GameObject goal;
 	public AudioSource intro;
-	public AudioSource success;
-  public float spawnTimer;
+  public float spawnTimerDelay = 10;
+	private float spawnTimer;
 
 	// Use this for initialization
 	void Start () {
-		SpawnGoal();
+		intro.Play();
     spawnTimer = 0;
 	}
 
 	// Update is called once per frame
 	void Update () {
     spawnTimer += Time.deltaTime;
-		if (spawnTimer >= 6)
+		if (spawnTimer >= spawnTimerDelay)
 		{
 				//pick random food
 				SpawnGoal();
