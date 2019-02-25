@@ -14,8 +14,9 @@ public class LevelManager : MonoBehaviour {
     public bool gameStart;
     public bool gameEnd;
     public GameObject newGameButton;
-    public GameObject restartButton;
-
+    public GameObject endButton;
+    public GameObject Title;
+    public GameObject GameOver;
     // Use this for initialization
 
     void Start() {
@@ -57,13 +58,16 @@ public class LevelManager : MonoBehaviour {
                 currentIndex++;
                 if (currentIndex >= SceneManager.sceneCountInBuildSettings)
                 {
-                    //GAME RESTARTS FROM THE FIRST GAME
+                    //GAME Restarts FROM THE FIRST GAME
                     currentIndex = startingLevel;
 
                     //GAME ENDS AND TALLYS YOUR SCORE
                     gameEnd = true;
                     newGameButton.SetActive(true);
-       		 		restartButton.SetActive(false);
+       		 		endButton.SetActive(false);
+                    Title.SetActive(false);
+                    GameOver.SetActive(true);
+
 
                     //Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ We are going to load this scene WE INSIDE THE IF: " + currentIndex);
                 }
@@ -104,11 +108,13 @@ public class LevelManager : MonoBehaviour {
         LoadNextScene(startingLevel);
         curTime = timeTillNextLevel;
         newGameButton.SetActive(false);
-        restartButton.SetActive(true);
+        endButton.SetActive(true);
+        Title.SetActive(true);
+        GameOver.SetActive(false);
 
     }
 
-    public void restartGame()
+    public void endGame()
     {
         //Resets Score
         Globals.score = 0;
@@ -116,7 +122,9 @@ public class LevelManager : MonoBehaviour {
         UnloadScene(sceneToUnLoad);
         currentIndex = startingLevel;
         newGameButton.SetActive(true);
-        restartButton.SetActive(false);
+        endButton.SetActive(false);
+        Title.SetActive(false);
+        GameOver.SetActive(true);
 
     }
 
