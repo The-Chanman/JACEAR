@@ -1969,7 +1969,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -300.24}
+  m_AnchoredPosition: {x: 0, y: -324}
   m_SizeDelta: {x: -124, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1723879377
@@ -1993,8 +1993,8 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_text: sonARcade
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 522a59ab3744c004fa1f80ec74ae6217, type: 2}
-  m_sharedMaterial: {fileID: 21068625345232544, guid: 522a59ab3744c004fa1f80ec74ae6217,
+  m_fontAsset: {fileID: 11400000, guid: 0ede72c5a1aec0f4c89a74cd6d7e7f1c, type: 2}
+  m_sharedMaterial: {fileID: 21845589759685920, guid: 0ede72c5a1aec0f4c89a74cd6d7e7f1c,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -2428,6 +2428,11 @@ Prefab:
         type: 2}
       propertyPath: m_Color.b
       value: 0.38431376
+      objectReference: {fileID: 0}
+    - target: {fileID: 223237269086590074, guid: 0499f078647c040d7a21b94ff1177202,
+        type: 2}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0499f078647c040d7a21b94ff1177202, type: 2}
