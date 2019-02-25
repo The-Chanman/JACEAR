@@ -211,6 +211,7 @@ namespace Bose.Wearable
                 Globals.score += finalPoints;
                 songPlayer.volume = 0;
                 audioDone.Play();
+                //GAME IS OVER
                 return;
             }
             timeleft -= Time.deltaTime;
