@@ -137,25 +137,25 @@ namespace Bose.Wearable
         player.transform.rotation = _inverseReference * frame.rotation;
       }
 
-      if(Input.GetKey(KeyCode.W)) {
-           player.transform.position += player.transform.forward * Time.deltaTime * movementSpeed;
-       }
-       else if(Input.GetKey(KeyCode.S)) {
-           player.transform.position -= player.transform.forward * Time.deltaTime * movementSpeed;
-       }
-       else if(Input.GetKey(KeyCode.A)) {
-           player.transform.position -= player.transform.right * Time.deltaTime * movementSpeed;
-       }
-       else if(Input.GetKey(KeyCode.D)) {
-           player.transform.position += player.transform.right * Time.deltaTime * movementSpeed;
-       }
-
-       if(Input.GetKey(KeyCode.E)) {
-           transform.Rotate(0, Time.deltaTime * clockwise, 0);
-       }
-       else if(Input.GetKey(KeyCode.Q)) {
-           transform.Rotate(0, Time.deltaTime * counterClockwise, 0);
-       }
+      // if(Input.GetKey(KeyCode.W)) {
+      //      player.transform.position += player.transform.forward * Time.deltaTime * movementSpeed;
+      //  }
+      //  else if(Input.GetKey(KeyCode.S)) {
+      //      player.transform.position -= player.transform.forward * Time.deltaTime * movementSpeed;
+      //  }
+      //  else if(Input.GetKey(KeyCode.A)) {
+      //      player.transform.position -= player.transform.right * Time.deltaTime * movementSpeed;
+      //  }
+      //  else if(Input.GetKey(KeyCode.D)) {
+      //      player.transform.position += player.transform.right * Time.deltaTime * movementSpeed;
+      //  }
+      //
+      //  if(Input.GetKey(KeyCode.E)) {
+      //      transform.Rotate(0, Time.deltaTime * clockwise, 0);
+      //  }
+      //  else if(Input.GetKey(KeyCode.Q)) {
+      //      transform.Rotate(0, Time.deltaTime * counterClockwise, 0);
+      //  }
   	}
 
   	void OnCollisionEnter(Collision collision){
