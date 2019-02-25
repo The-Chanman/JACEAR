@@ -17,12 +17,12 @@ public class FaceEatGame : MonoBehaviour {
         spawnTimer = 0;
 
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
 
-        
-        
+
+
         spawnTimer += Time.deltaTime;
 
         if (spawnTimer >= 5)
