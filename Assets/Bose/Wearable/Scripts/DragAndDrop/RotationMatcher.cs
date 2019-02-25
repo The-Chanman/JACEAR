@@ -86,7 +86,7 @@ namespace Bose.Wearable
 				return;
 			}
 
-			_wearableControl.GameRotationSensor.Start();
+			_wearableControl.RotationSensor.Start();
 		}
 
 		private void Update()
@@ -103,12 +103,12 @@ namespace Bose.Wearable
 			if (_mode == RotationReference.Absolute)
 			{
 				// In absolute mode, match the rotation exactly.
-				transform.rotation = frame.gameRotation;
+				transform.rotation = frame.rotation;
 			}
 			else if (_mode == RotationReference.Relative)
 			{
 				// In relative mode, left-apply the inverse of the reference rotation to compute the relative change
-				transform.rotation = _inverseReference * frame.gameRotation;
+				transform.rotation = _inverseReference * frame.rotation;
 			}
 		}
 
