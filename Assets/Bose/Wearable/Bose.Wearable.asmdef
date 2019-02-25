@@ -1,8 +1,6 @@
 {
     "name": "Bose.Wearable",
     "references": [],
-    "optionalUnityReferences": [],
     "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": true
+    "excludePlatforms": []
 }

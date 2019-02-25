@@ -18,7 +18,8 @@ public class BallLauncher : MonoBehaviour {
             
         }
     }
-    void Spawn () {
+    
+    public void Spawn () {
             GameObject instance = Instantiate(ballPrefab);
             instance.transform.position = transform.position;
             Rigidbody rb = instance.GetComponent<Rigidbody>();

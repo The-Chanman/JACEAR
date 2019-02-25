@@ -467,7 +467,7 @@ namespace Bose.Wearable
 
 		internal WearableDeviceProvider()
 		{
-			_rotationMode = RotationMode.SixDof;
+			_rotationMode = RotationMode.NineDof;
 
 			_sensorStatus = new Dictionary<SensorId, bool>();
 			_sensorUpdateInterval = WearableConstants.DefaultUpdateInterval;
