@@ -25,6 +25,8 @@ namespace Bose.Wearable
         public AudioClip done;
         public AudioClip spin;
         public AudioClip boo;
+        public AudioClip slideRight;
+        public AudioClip slideLeft;
 
 
         private AudioSource audioRight;
@@ -51,11 +53,16 @@ namespace Bose.Wearable
         private float yRot;
         private float zRot;
 
+
+
         //360 spin
         private Vector3 lastFwd;
         public float curXangle = 0;
         private float changeSpinTime;
         public bool inASpin;
+
+        public bool inATask;
+        int task = 0; //TODO make this nicer to select.
 
 
 
@@ -114,6 +121,7 @@ namespace Bose.Wearable
         {
             lastFwd = transform.forward;
             inASpin = false;
+            inATask = false;
 
         }
 
@@ -241,43 +249,74 @@ namespace Bose.Wearable
             }
             else //check that person is actually moving
             {
-                //TODO stop this when they complete it
-                // and make sure it isn't near the freeze time
+                //TODO make this nicer
+                // TODO make sure event isn't near the freeze time
                 if(timeleft < changeSpinTime) //do a spin 
                 {
                     
-                    if (!inASpin)
+                    if(task == 0 || task == 1) //slide to right or left
                     {
-                        curXangle = 0;
-                        audioInstructions.clip = spin;
-                        audioInstructions.Play();
-                        lastFwd = transform.forward;
-                        inASpin = true;
-                        return;
+                        if (!inATask)
+                        {
+                            audioInstructions.Play();
+                            inATask = true;
+                            return;
+                        }
+                        if ((task == 0 && frame.acceleration.value.x > 3.0f) 
+                            || (task == 1 && frame.acceleration.value.x < -3.0f))//tothe right or left
+                        {
+                            //you did it!
+                            audioRight.Play();
+                            finalPoints += 40;
+                            RandomSpinTime();
+                        }
+
+                        if (timeleft < changeSpinTime - 5) //5 seconds to do a task
+                        {
+                            audioFeedback.clip = boo;
+                            audioFeedback.Play();
+                            RandomSpinTime();
+                        }
+                    }
+                    else // spin
+                    {
+                        if (!inASpin)
+                        {
+                            curXangle = 0;
+                            audioInstructions.clip = spin;
+                            audioInstructions.Play();
+                            lastFwd = transform.forward;
+                            inASpin = true;
+                            return;
+                        }
+
+                        DoASpin(); //calc angles
+
+
+                        if (Mathf.Abs(curXangle) >= 120) //congrats you did a spin
+                        {
+                            //you did it!
+                            audioRight.Play();
+                            finalPoints += 40;
+                            RandomSpinTime();
+                        }
+
+                        if (timeleft < changeSpinTime - 5) //5 seconds to do a spin
+                        {
+                            audioFeedback.clip = boo;
+                            audioFeedback.Play();
+                            RandomSpinTime();
+                        }
                     }
 
-                    DoASpin(); //calc angles
 
-
-                    if (Mathf.Abs(curXangle) >= 120) //congrats you did a spin
-                    {
-                        //you did it!
-                        audioRight.Play();
-                        finalPoints += 40;
-                        RandomSpinTime();
-                    }
-
-                    if(timeleft < changeSpinTime - 8) //5 seconds to do a spin
-                    {
-                        audioFeedback.clip = boo;
-                        audioFeedback.Play();
-                        RandomSpinTime();
-                    }
+                    
 
                 }
                 else if (Time.time >= updateMoveCheck)
                 {
                     inASpin = false;
+                    inATask = false;
                     updateMoveCheck = Mathf.FloorToInt(Time.time) + 3f;
                     //allow them a sec to react
                     if (frame.acceleration.value.magnitude > min && frame.acceleration.value.magnitude < max) 
@@ -339,7 +378,17 @@ namespace Bose.Wearable
 
         private void RandomSpinTime()
         {
+            inATask = false;
             float change = Random.Range(10, 40);
+            task = Random.Range(0, 3);
+            if(task == 0)
+            {
+                audioInstructions.clip = slideLeft;
+            } else if(task == 1)
+            {
+                audioInstructions.clip = slideRight;
+            }
+            
             changeSpinTime = timeleft - change;
         }
     }

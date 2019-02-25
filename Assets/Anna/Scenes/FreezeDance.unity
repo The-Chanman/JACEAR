@@ -1015,6 +1015,8 @@ MonoBehaviour:
   done: {fileID: 8300000, guid: b148a5c58a5e00948b7ad194db6aa542, type: 3}
   spin: {fileID: 8300000, guid: c30f001a7ec4f0c44912ee040e49994a, type: 3}
   boo: {fileID: 8300000, guid: 19cce5daf9ab1714fa8f9c70a92c177a, type: 3}
+  slideRight: {fileID: 8300000, guid: 3f434fcb969c6074e859a50d24ae857c, type: 3}
+  slideLeft: {fileID: 8300000, guid: eeb7c05af928523498800374eea835a8, type: 3}
   danceHarderAudioClips:
   - {fileID: 8300000, guid: 0120aee75962df842a5d1777f68b0e6f, type: 3}
   - {fileID: 8300000, guid: ebfeee962d638834e8c9c4d87bf54a1f, type: 3}
@@ -1028,6 +1030,7 @@ MonoBehaviour:
   finalPoints: 200
   curXangle: 0
   inASpin: 0
+  inATask: 0
 --- !u!1 &1166190913
 GameObject:
   m_ObjectHideFlags: 0
