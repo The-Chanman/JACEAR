@@ -8,9 +8,12 @@ namespace Bose.Wearable
   public class FishyPlayer : MonoBehaviour {
     public AudioSource success;
     public GameObject player;
+    public bool swimSwing;
     public float movementSpeed = 15.0f;
     public float clockwise = 15.0f;
     public float counterClockwise = -15.0f;
+    public AudioSource forwardSwingFeedback;
+    public AudioSource backwardSwingFeedback;
 
     // Bose stuff that isn't explained at all very well
     public enum RotationReference
@@ -110,6 +113,29 @@ namespace Bose.Wearable
       // Get a frame of sensor data. Since no integration is being performed, we can safely ignore all
       // intermediate frames and just grab the most recent.
       SensorFrame frame = _wearableControl.LastSensorFrame;
+      if (frame.acceleration.value.z < -3.5f && swimSwing == false)
+      {
+          swimSwing = true;
+          player.transform.position += player.transform.forward * Time.deltaTime * movementSpeed;
+          forwardSwingFeedback.Play();
+      }
+      if (frame.acceleration.value.z > 3.5f && swimSwing == true)
+      {
+          swimSwing = false;
+          player.transform.position += player.transform.forward * Time.deltaTime * movementSpeed;
+          backwardSwingFeedback.Play();
+      }
+
+      if (_mode == RotationReference.Absolute)
+      {
+        // In absolute mode, match the rotation exactly.
+        player.transform.rotation = frame.rotation;
+      }
+      else if (_mode == RotationReference.Relative)
+      {
+        // In relative mode, left-apply the inverse of the reference rotation to compute the relative change
+        player.transform.rotation = _inverseReference * frame.rotation;
+      }
 
       if(Input.GetKey(KeyCode.W)) {
            player.transform.position += player.transform.forward * Time.deltaTime * movementSpeed;
