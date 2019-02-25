@@ -14,7 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/FinalFoodEatGame.unity
     guid: cb9a3add714516b47904c28b8d089f12
-  - enabled: 0
-    path: Assets/Costas/Scenes/FoodEatGame.unity
-    guid: 1e6f4f07c3ffb1144b4fe2a479dd7292
+  - enabled: 1
+    path: Assets/Scenes/FinalFishyGame.unity
+    guid: 7890f6aca11ac4f63935d0c866a0f862
   m_configObjects: {}
