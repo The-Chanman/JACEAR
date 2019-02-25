@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class FaceEatGame : MonoBehaviour {
-
-    public GameObject player;
+ 	public AudioSource intro;
     private Transform setup;
     public Transform fuckshit;
     private int score;
@@ -15,6 +14,7 @@ public class FaceEatGame : MonoBehaviour {
     // Use this for initialization
 	void Start () {
         spawnTimer = 0;
+        intro.Play();
 
 	}
 
