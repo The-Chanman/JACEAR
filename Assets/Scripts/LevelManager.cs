@@ -12,6 +12,7 @@ public class LevelManager : MonoBehaviour {
     private int sceneToUnLoad;
     public WearableConnectUIPanel w;
     public bool gameStart;
+    public bool gameEnd;
     public GameObject newGameButton;
     public GameObject restartButton;
 
@@ -34,42 +35,15 @@ public class LevelManager : MonoBehaviour {
     public void OnConnect()
     {
         currentIndex = startingLevel;
-        Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ We are going to load this scene: " + startingLevel);
+        // Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ We are going to load this scene: " + startingLevel);
         //LoadNextScene(startingLevel);
-        Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ New current index is: " + currentIndex);
+        // Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ New current index is: " + currentIndex);
         //curTime = timeTillNextLevel;
     }
     // Update is called once per frame
-    /*   void Update() {
-           if (curTime > 0)
-           {
-               curTime -= Time.deltaTime;
-               if (curTime < 0)
-               {
-                   int curLevel = currentIndex + 1;
-                   if (!(curLevel >= SceneManager.sceneCountInBuildSettings))
-                   {
-                       LoadNextScene(curLevel);
-                       UnloadScene(currentIndex);
-                       curTime = timeTillNextLevel;
-                       currentIndex++;
-                   }
-                   else
-                   {
-                       currentIndex = startingLevel;
-                       LoadNextScene(curLevel);
-                       UnloadScene(currentIndex);
-                       curTime = timeTillNextLevel;
-                       currentIndex++;
-                   }
-                   Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + curLevel);
-               }
-           }
-       } */
-
     void Update()
     {
-        if (gameStart)
+        if (gameStart && !gameEnd)
         {
             if (curTime > 0)
             {
@@ -83,15 +57,23 @@ public class LevelManager : MonoBehaviour {
                 currentIndex++;
                 if (currentIndex >= SceneManager.sceneCountInBuildSettings)
                 {
+                    //GAME RESTARTS FROM THE FIRST GAME
                     currentIndex = startingLevel;
+
+                    //GAME ENDS AND TALLYS YOUR SCORE
+                    gameEnd = true;
+                    newGameButton.SetActive(true);
+       		 		restartButton.SetActive(false);
+
                     //Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ We are going to load this scene WE INSIDE THE IF: " + currentIndex);
                 }
                 //Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ We are going to unload this scene: " + sceneToUnLoad);
                 UnloadScene(sceneToUnLoad);
                 //Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ We are going to load this scene: " + currentIndex);
-                LoadNextScene(currentIndex);
-
-                curTime = timeTillNextLevel;
+                if(!gameEnd){
+					LoadNextScene(currentIndex);
+	                curTime = timeTillNextLevel;
+                }
 
             }
         }
@@ -118,13 +100,10 @@ public class LevelManager : MonoBehaviour {
     {
 
         gameStart = true;
-
+		gameEnd = false;
         LoadNextScene(startingLevel);
-
         curTime = timeTillNextLevel;
-
         newGameButton.SetActive(false);
-        
         restartButton.SetActive(true);
 
     }
@@ -133,6 +112,9 @@ public class LevelManager : MonoBehaviour {
     {
         //Resets Score
         Globals.score = 0;
+        sceneToUnLoad = currentIndex;
+        UnloadScene(sceneToUnLoad);
+        currentIndex = startingLevel;
         newGameButton.SetActive(true);
         restartButton.SetActive(false);
 

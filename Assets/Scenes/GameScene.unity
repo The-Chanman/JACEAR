@@ -521,12 +521,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19674cfe2dd9e9245a29fa9f736d3a3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeTillNextLevel: 90
+  timeTillNextLevel: 10
   curTime: 0
   startingLevel: 1
   currentIndex: 0
   w: {fileID: 0}
   gameStart: 0
+  gameEnd: 0
   newGameButton: {fileID: 1317647205}
   restartButton: {fileID: 161144363}
 --- !u!4 &701329767
