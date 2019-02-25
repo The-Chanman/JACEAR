@@ -20,7 +20,7 @@ namespace Bose.Wearable
         public float curAcc;
 
         public AudioClip right;
-        public AudioClip wrong;
+        public AudioClip clipFreeze;
         public AudioClip intro;
         public AudioClip done;
         public AudioClip spin;
@@ -28,7 +28,7 @@ namespace Bose.Wearable
 
 
         private AudioSource audioRight;
-        private AudioSource audioWrong;
+        private AudioSource audioFreeze;
         private AudioSource audioIntro;
         private AudioSource audioDone;
         private AudioSource audioFeedback;
@@ -36,6 +36,7 @@ namespace Bose.Wearable
 
 
         public AudioClip[] danceHarderAudioClips;
+        public AudioClip[] freezeAudioClips;
 
 
         private AudioSource songPlayer;
@@ -159,7 +160,7 @@ namespace Bose.Wearable
 
             // add the necessary AudioSources:
             audioRight = AddAudio(right, false, true, 1);
-            audioWrong = AddAudio(wrong, false, true, 1);
+            audioFreeze = AddAudio(freezeAudioClips[0], false, true, 1);
             audioIntro = AddAudio(intro, false, true, 1);
             audioFeedback = AddAudio(danceHarderAudioClips[0], false, true, 1);
             audioDone = AddAudio(done, false, true, 1);
@@ -171,7 +172,7 @@ namespace Bose.Wearable
             songPlayer = GetComponent<AudioSource>();
             songPlayer.Play();
             songPlayer.volume = 1;
-            audioWrong.volume = 0.2f;
+            audioFreeze.volume = 1;
             RandomTime();
             RandomSpinTime();
             finalPoints = 300;
@@ -219,8 +220,12 @@ namespace Bose.Wearable
                     if (CheckMove() == true)
                     {
                         FreezePosition(); //reset position to give them another chance
-                        audioWrong.Play(); //play buzz if they move
-                        finalPoints -= 15;
+                        if (!audioFreeze.isPlaying)
+                        {
+                            audioFreeze.clip = freezeAudioClips[Random.Range(0, freezeAudioClips.Length)];
+                            audioFreeze.Play(); //play buzz if they move
+                            finalPoints -= 15;
+                        }
                     }
 
                     if (timeleft < changeVolTime - 5)
@@ -229,7 +234,7 @@ namespace Bose.Wearable
                         updateMoveCheck = Mathf.FloorToInt(Time.time) + 0.8f; //give react time to dance
                         RandomTime();
                         //if person successfully didn't move, play point audioRight.Play();
-                        //else play buzz audioWrong.Play();
+                        //else play buzz audioFreeze.Play();
 
                     }
                 }
@@ -243,6 +248,7 @@ namespace Bose.Wearable
                     
                     if (!inASpin)
                     {
+                        curXangle = 0;
                         audioInstructions.clip = spin;
                         audioInstructions.Play();
                         lastFwd = transform.forward;
@@ -253,7 +259,7 @@ namespace Bose.Wearable
                     DoASpin(); //calc angles
 
 
-                    if (Mathf.Abs(curXangle) >= 360) //congrats you did a spin
+                    if (Mathf.Abs(curXangle) >= 120) //congrats you did a spin
                     {
                         //you did it!
                         audioRight.Play();
