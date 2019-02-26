@@ -239,7 +239,7 @@ namespace Bose.Wearable
 
                     if (timeleft < changeVolTime - 5)
                     {
-                        songPlayer.volume = .6f;
+                        songPlayer.volume = .4f;
                         updateMoveCheck = Mathf.FloorToInt(Time.time) + 0.8f; //give react time to dance
                         RandomTime();
                         //if person successfully didn't move, play point audioRight.Play();
