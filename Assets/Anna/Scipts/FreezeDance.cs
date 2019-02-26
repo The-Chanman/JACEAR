@@ -179,7 +179,7 @@ namespace Bose.Wearable
 
             songPlayer = GetComponent<AudioSource>();
             songPlayer.Play();
-            songPlayer.volume = .8;
+            songPlayer.volume = .8f;
             audioFreeze.volume = 1;
             RandomTime();
             RandomSpinTime();
@@ -239,7 +239,7 @@ namespace Bose.Wearable
 
                     if (timeleft < changeVolTime - 5)
                     {
-                        songPlayer.volume = .8;
+                        songPlayer.volume = .8f;
                         updateMoveCheck = Mathf.FloorToInt(Time.time) + 0.8f; //give react time to dance
                         RandomTime();
                         //if person successfully didn't move, play point audioRight.Play();
