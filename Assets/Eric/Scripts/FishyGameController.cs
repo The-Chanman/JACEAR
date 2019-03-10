@@ -7,6 +7,7 @@ public class FishyGameController : MonoBehaviour {
 	public Vector3 size;
 	public GameObject goal;
 	public AudioSource intro;
+    public Transform sceneAnchor;
   public float spawnTimerDelay = 10;
 	private float spawnTimer;
 
@@ -29,8 +30,10 @@ public class FishyGameController : MonoBehaviour {
 
 	void SpawnGoal() {
 		Vector3 pos = goalspawnLocationCenter + new Vector3(Random.Range(-size.x / 2, size.x / 2), Random.Range(-size.y / 2, size.y / 2),  Random.Range(-size.z / 2, size.z / 2));
-		Instantiate(goal, pos, Quaternion.identity);
-	}
+		GameObject spawnedGoal = Instantiate(goal, pos, Quaternion.identity, sceneAnchor);
+        spawnedGoal.transform.SetParent(null);
+
+    }
 
 	void OnDrawGizmosSelected(){
 		Gizmos.color = new Color(1,0,0,0.5f);
