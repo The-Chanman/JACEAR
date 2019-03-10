@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Events;
 
 namespace Bose.Wearable
@@ -10,53 +11,58 @@ namespace Bose.Wearable
 	[AddComponentMenu("Bose/Wearable/GestureDetector")]
 	public class GestureDetector : MonoBehaviour
 	{
-		[SerializeField] 
+		/// <summary>
+		/// The gesture that will be detected.
+		/// </summary>
+		public GestureId Gesture
+		{
+			get { return _gesture; }
+			set
+			{
+				Assert.IsFalse(value == GestureId.None, string.Format(WearableConstants.NoneIsInvalidGesture, GetType()));
+
+				if (_requirement != null && 
+				    _gesture != value &&
+				    _gesture != GestureId.None)
+				{
+					_requirement.DisableGesture(_gesture);
+				}
+
+				_gesture = value;
+
+				if (_requirement != null)
+				{
+					_requirement.EnableGesture(_gesture);
+				}
+			}
+		}
+
+		[SerializeField]
 		private GestureId _gesture;
-		
+
 		[SerializeField]
 		private UnityEvent _onGestureDetected;
 
 		private WearableControl _wearableControl;
+		private WearableRequirement _requirement;
 
 		private void Awake()
 		{
 			_wearableControl = WearableControl.Instance;
-			_wearableControl.DeviceConnected += OnDeviceConnected;
 			_wearableControl.GestureDetected += GestureDetected;
+			
+			// Establish a requirement for the referenced gesture.
+			_requirement = gameObject.AddComponent<WearableRequirement>();
+
+			if (_gesture != GestureId.None)
+			{
+				_requirement.EnableGesture(_gesture);
+			}
 		}
 
 		private void OnDestroy()
 		{
-			_wearableControl.DeviceConnected -= OnDeviceConnected;
 			_wearableControl.GestureDetected -= GestureDetected;
-		}
-
-		private void OnEnable()
-		{
-			EnableGesture();
-		}
-
-		private void OnDeviceConnected(Device device)
-		{
-			EnableGesture();
-		}
-
-		private void EnableGesture()
-		{
-			if (_wearableControl.ConnectedDevice == null)
-			{
-				return;
-			}
-
-			try
-			{
-				var gesture = _wearableControl.GetWearableGestureById(_gesture);
-				gesture.Enable();
-			}
-			catch (Exception exception)
-			{
-				Debug.LogError(exception.Message, this);
-			}
 		}
 
 		private void GestureDetected(GestureId gesture)

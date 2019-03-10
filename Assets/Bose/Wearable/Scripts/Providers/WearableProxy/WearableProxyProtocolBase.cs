@@ -93,7 +93,7 @@ namespace Bose.Wearable.Proxy
 		#endregion
 
 		#region Private
-		private const byte Version = 0x03;
+		private const byte Version = 0x04;
 		private const int Terminator = 0x424F5345; // "BOSE"
 
 		private static readonly Encoding _stringEncoding;
@@ -112,6 +112,7 @@ namespace Bose.Wearable.Proxy
 			SensorStatus = 0x07,
 			UpdateIntervalValue = 0x08,
 			GestureStatus = 0x09,
+			RotationSourceValue = 0x10,
 
 			// Client -> Server
 			SensorControl = 0x70,
@@ -126,6 +127,8 @@ namespace Bose.Wearable.Proxy
 			QuerySensorStatus = 0x79,
 			GestureControl = 0x7a,
 			QueryGestureStatus = 0x7b,
+			QueryRotationSource = 0x7c,
+			SetRotationSource = 0x7d
 		}
 
 		[StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -234,6 +237,12 @@ namespace Bose.Wearable.Proxy
 		protected struct DeviceConnectPacket
 		{
 			public DeviceUID uid;
+		}
+		
+		[StructLayout(LayoutKind.Sequential, Pack = 1)]
+		protected struct RotationSourcePacket
+		{
+			public int value;
 		}
 
 		static WearableProxyProtocolBase()
@@ -353,6 +362,28 @@ namespace Bose.Wearable.Proxy
 		}
 
 		/// <summary>
+		/// Read the <see cref="RotationSensorSource"/> from a <see cref="RotationSourcePacket"/>
+		/// </summary>
+		/// <param name="buffer"></param>
+		/// <param name="index"></param>
+		/// <returns></returns>
+		protected static RotationSensorSource DecodeRotationSource(byte[] buffer, ref int index)
+		{
+			RotationSourcePacket packet = DeserializePacket<RotationSourcePacket>(buffer, ref index);
+			return (RotationSensorSource) packet.value;
+		}
+		
+		/// <summary>
+		/// Create a <see cref="RotationSourcePacket"/> from a <see cref="RotationSensorSource"/>
+		/// </summary>
+		/// <param name="source"></param>
+		/// <returns></returns>
+		protected static RotationSourcePacket EncodeRotationSource(RotationSensorSource source)
+		{
+			return new RotationSourcePacket {value = (int) source};
+		}
+
+		/// <summary>
 		/// Encode a packet of type T into a byte stream.
 		/// </summary>
 		/// <param name="buffer"></param>
@@ -460,7 +491,7 @@ namespace Bose.Wearable.Proxy
 			{
 				Assert.AreEqual(2, sizeof(PacketHeader));
 				Assert.AreEqual(4, sizeof(PacketFooter));
-				Assert.AreEqual(84, sizeof(SensorFrame));
+				Assert.AreEqual(64, sizeof(SensorFrame));
 				Assert.AreEqual(75, sizeof(DeviceInfoPacket));
 				Assert.AreEqual(4, sizeof(DeviceListPacketHeader));
 				Assert.AreEqual(79, sizeof(ConnectionStatusPacket));
@@ -469,6 +500,7 @@ namespace Bose.Wearable.Proxy
 				Assert.AreEqual(4, sizeof(RSSIFilterControlPacket));
 				Assert.AreEqual(36, sizeof(DeviceConnectPacket));
 				Assert.AreEqual(4, sizeof(UpdateIntervalPacket));
+				Assert.AreEqual(4, sizeof(RotationSourcePacket));
 			}
 		}
 

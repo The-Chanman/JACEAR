@@ -28,49 +28,41 @@ namespace Bose.Wearable.Examples
 		/// A margin in degrees to add to the estimated accuracy.
 		/// </summary>
 		[SerializeField]
-		protected float _targetMargin;
+		private float _targetMargin;
 
 		/// <summary>
 		/// The maximum distance from the target in degrees that is considered facing the target.
 		/// </summary>
 		[SerializeField]
-		protected float _maxTargetWidth;
+		private float _maxTargetWidth;
 
 		/// <summary>
 		/// The fill rate in units per second, added to the charge when the target is selected.
 		/// A target will be collected in 1/_chargeFillRate seconds.
 		/// </summary>
 		[SerializeField]
-		protected float _chargeFillRate;
+		private float _chargeFillRate;
 
 		/// <summary>
 		/// The empty rate in units per second, subtracted from the charge when the target is not selected.
 		/// </summary>
 		[SerializeField]
-		protected float _chargeEmptyRate;
+		private float _chargeEmptyRate;
 
 		/// <summary>
-		/// The audio clip to play when a new target spawns.
+		/// The animation parameter to set while the trigger is charging.
 		/// </summary>
 		[SerializeField]
-		protected AudioClip _sfxSpawn;
+		private string _animationIsChargingParameter;
 
 		/// <summary>
-		/// The audio clip to play when a target is locked.
+		/// The animation parameter to set when the trigger is fully charged.
 		/// </summary>
 		[SerializeField]
-		protected AudioClip _sfxLock;
-
-		/// <summary>
-		/// The audio clip to play when a target is successfully collected.
-		/// </summary>
-		[SerializeField]
-		protected AudioClip _sfxCollect;
-
+		private string _animationIsFullyChargedParameter;
 
 		private WearableControl _wearableControl;
 		private TargetSFX _sfx;
-		private AudioControl _audioControl;
 		private Animator _animator;
 
 		private float _charge;
@@ -78,17 +70,22 @@ namespace Bose.Wearable.Examples
 		private bool _collected;
 		private bool _targetLocked;
 
-		private void Start()
+		private void Awake()
 		{
 			_wearableControl = WearableControl.Instance;
-			_audioControl = AudioControl.Instance;
 			_sfx = GetComponent<TargetSFX>();
 			_animator = GetComponent<Animator>();
-			_animator.SetBool("Destroy", false);
+		}
+
+		private void Start()
+		{
+			_animator.SetBool(_animationIsChargingParameter, false);
+			_animator.SetBool(_animationIsFullyChargedParameter, false);
 			_collected = false;
 			_targetLocked = false;
-
-			PlaySpawnSting();
+			
+			_sfx.FadeInAudio();
+			_sfx.PlaySpawnSting();
 		}
 
 		private void Update()
@@ -123,9 +120,11 @@ namespace Bose.Wearable.Examples
 
 				if (!_targetLocked)
 				{
-					PlayLockSting();
+					_sfx.PlayLockSting();
 					_targetLocked = true;
 				}
+				
+				_animator.SetBool(_animationIsChargingParameter, true);
 			}
 			else
 			{
@@ -133,6 +132,8 @@ namespace Bose.Wearable.Examples
 				_charge -= _chargeEmptyRate * Time.deltaTime;
 
 				_targetLocked = false;
+				
+				_animator.SetBool(_animationIsChargingParameter, false);
 			}
 
 			// If the charge exceeds 1, "collect" the target. The animator will automatically destroy this target
@@ -144,9 +145,11 @@ namespace Bose.Wearable.Examples
 				{
 					Collected.Invoke(this);
 				}
-				_animator.SetBool("Destroy", true);
-
-				PlayCollectSting();
+				_animator.SetBool(_animationIsFullyChargedParameter, true);
+				_animator.SetBool(_animationIsChargingParameter, false);
+				
+				_sfx.PlayCollectSting();
+				_sfx.FadeOutAudio();
 			}
 
 			// Clamp the charge within [0, 1]
@@ -154,6 +157,9 @@ namespace Bose.Wearable.Examples
 
 			// Scale the target from 0.5 to 1.5 with charge.
 			transform.localScale = Vector3.one * (0.5f + _charge);
+			
+			// Set the fill level based on charge
+			_sfx.SetChargeLevel(_charge);
 		}
 
 		/// <summary>
@@ -162,21 +168,6 @@ namespace Bose.Wearable.Examples
 		public void Destroy()
 		{
 			UnityEngine.Object.Destroy(gameObject);
-		}
-
-		private void PlaySpawnSting()
-		{
-			_audioControl.PlayOneShot(_sfxSpawn);
-		}
-
-		private void PlayLockSting()
-		{
-			_audioControl.PlayOneShot(_sfxLock);
-		}
-
-		private void PlayCollectSting()
-		{
-			_audioControl.PlayOneShot(_sfxCollect);
 		}
 	}
 }

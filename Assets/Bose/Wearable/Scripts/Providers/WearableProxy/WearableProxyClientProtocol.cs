@@ -17,6 +17,7 @@ namespace Bose.Wearable.Proxy
 		public event Action<SensorId, bool> SensorStatus;
 		public event Action<GestureId, bool> GestureStatus;
 		public event Action<SensorUpdateInterval> SensorUpdateIntervalValue;
+		public event Action<RotationSensorSource> RotationSourceValue;
 
 		#region Decoding
 
@@ -143,6 +144,18 @@ namespace Bose.Wearable.Proxy
 
 					break;
 				}
+				case PacketTypeCode.RotationSourceValue:
+				{
+					RotationSensorSource source = DecodeRotationSource(buffer, ref index);
+					CheckFooter(buffer, ref index);
+
+					if (RotationSourceValue != null)
+					{
+						RotationSourceValue.Invoke(source);
+					}
+
+					break;
+				}
 				case PacketTypeCode.SensorControl:
 				case PacketTypeCode.SetRssiFilter:
 				case PacketTypeCode.InitiateDeviceSearch:
@@ -154,6 +167,8 @@ namespace Bose.Wearable.Proxy
 				case PacketTypeCode.SetUpdateInterval:
 				case PacketTypeCode.QuerySensorStatus:
 				case PacketTypeCode.GestureControl:
+				case PacketTypeCode.QueryRotationSource:
+				case PacketTypeCode.SetRotationSource:
 					// This is a known, but contextually-invalid packet type
 					throw new WearableProxyProtocolException(WearableConstants.ProxyProviderInvalidPacketError);
 				default:
@@ -447,6 +462,32 @@ namespace Bose.Wearable.Proxy
 
 			// No payload
 
+			// Encode footer
+			SerializePacket(buffer, ref index, _footer);
+		}
+
+		public static void EncodeQueryRotationSource(byte[] buffer, ref int index)
+		{
+			// Encode header
+			PacketHeader header = new PacketHeader(PacketTypeCode.QueryRotationSource);
+			SerializePacket(buffer, ref index, header);
+			
+			// No payload
+			
+			// Encode footer
+			SerializePacket(buffer, ref index, _footer);
+		}
+
+		public static void EncodeSetRotationSource(byte[] buffer, ref int index, RotationSensorSource source)
+		{
+			// Encode header
+			PacketHeader header = new PacketHeader(PacketTypeCode.SetRotationSource);
+			SerializePacket(buffer, ref index, header);
+			
+			// Encode payload
+			RotationSourcePacket packet = EncodeRotationSource(source);
+			SerializePacket(buffer, ref index, packet);
+			
 			// Encode footer
 			SerializePacket(buffer, ref index, _footer);
 		}

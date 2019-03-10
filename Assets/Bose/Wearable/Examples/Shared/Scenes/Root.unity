@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074, b: 0.35872698, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -554,10 +554,14 @@ MonoBehaviour:
     _variantId: 0
     _uid: 00000000-0000-0000-0000-000000000000
     _verbose: 1
+    _simulateMovement: 0
+    _eulerSpinRate: {x: 0, y: 0, z: 0}
+    _axisAngleSpinRate: {x: 0, y: 1, z: 0, w: 0}
+    _rotationType: 0
   _deviceProvider:
     _simulateHardwareDevices: 0
   _usbProvider:
-    _debugLogging: 1
+    _debugLogging: 0
   _proxyProvider:
     _networkTimeout: 1
     _portNumber: 0

@@ -6,15 +6,23 @@ using UnityEngine;
 namespace Bose.Wearable.Editor.Inspectors
 {
 	[CustomEditor(typeof(WearableControl))]
-	public class WearableControlInspector : UnityEditor.Editor
+	public sealed class WearableControlInspector : UnityEditor.Editor
 	{
 		private SerializedProperty _editorProvider;
 		private SerializedProperty _runtimeProvider;
 
-		private const string WearableDeviceProviderUnsupportedEditorWarning = "The Wearable Device Provider is not supported in the editor.";
-		private const string USBProviderUnsupportedOutsideEditorWarning = "The USB Provider is only supported in the editor.";
+		private const string WearableDeviceProviderUnsupportedEditorWarning =
+			"The Wearable Device Provider is not supported in the editor.";
+		private const string USBProviderUnsupportedOutsideEditorWarning =
+			"The USB Provider is only supported in the editor.";
+		private const string OverrideConfigPresentWarning =
+			"The device config is currently overridden and does not reflect the normal device config present " +
+			"during normal runtime usage.";
+
 		private const string EditorDefaultTitle = "Editor Default";
 		private const string RuntimeDefaultTitle = "Runtime Default";
+		private const string ResolvedDeviceConfigTitle = "Resolved Device Config";
+		private const string OverrideDeviceConfigTitle = "Override Device Config";
 		private const string TitleSeparator = " - ";
 
 		private const string EditorDefaultProviderField = "_editorDefaultProvider";
@@ -26,10 +34,17 @@ namespace Bose.Wearable.Editor.Inspectors
 		private const string USBProviderField = "_usbProvider";
 		private const string ProxyProviderField = "_proxyProvider";
 
+		private const string FinalWearableDeviceConfigField = "_finalWearableDeviceConfig";
+		private const string OverrideWearableDeviceConfigField = "_overrideDeviceConfig";
+
+		private WearableControl _wearableControl;
+
 		private void OnEnable()
 		{
 			_editorProvider = serializedObject.FindProperty(EditorDefaultProviderField);
 			_runtimeProvider = serializedObject.FindProperty(RuntimeDefaultProviderField);
+
+			_wearableControl = (WearableControl)target;
 		}
 
 		private void DrawProviderBox(string field, ProviderId provider)
@@ -39,7 +54,7 @@ namespace Bose.Wearable.Editor.Inspectors
 
 			if (isEditorDefault || isRuntimeDefault)
 			{
-				GUILayout.Box(String.Empty, GUILayout.ExpandWidth(true), GUILayout.Height(1));
+				GUILayoutTools.LineSeparator();
 
 				StringBuilder titleBuilder = new StringBuilder();
 				titleBuilder.Append(Enum.GetName(typeof(ProviderId), provider));
@@ -84,7 +99,38 @@ namespace Bose.Wearable.Editor.Inspectors
 				EditorGUILayout.HelpBox(USBProviderUnsupportedOutsideEditorWarning, MessageType.Error);
 			}
 
+			if (Application.isPlaying)
+			{
+				GUILayoutTools.LineSeparator();
+
+
+				if (_wearableControl.IsOverridingDeviceConfig)
+				{
+					EditorGUILayout.LabelField(OverrideDeviceConfigTitle, WearableConstants.EmptyLayoutOptions);
+					EditorGUILayout.HelpBox(OverrideConfigPresentWarning, MessageType.Warning);
+					EditorGUI.BeginDisabledGroup(true);
+					EditorGUILayout.PropertyField(
+						serializedObject.FindProperty(OverrideWearableDeviceConfigField),
+						WearableConstants.EmptyLayoutOptions);
+				}
+				else
+				{
+					EditorGUILayout.LabelField(ResolvedDeviceConfigTitle, WearableConstants.EmptyLayoutOptions);
+					EditorGUI.BeginDisabledGroup(true);
+					EditorGUILayout.PropertyField(
+						serializedObject.FindProperty(FinalWearableDeviceConfigField),
+						WearableConstants.EmptyLayoutOptions);
+				}
+
+				EditorGUI.EndDisabledGroup();
+			}
+
 			serializedObject.ApplyModifiedProperties();
+		}
+
+		public override bool RequiresConstantRepaint()
+		{
+			return Application.isPlaying;
 		}
 	}
 }

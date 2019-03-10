@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Bose.Wearable
@@ -18,6 +17,18 @@ namespace Bose.Wearable
 		public void SimulateDisconnect()
 		{
 			DisconnectFromDevice();
+		}
+		
+		/// <summary>
+		/// Simulate a triggered gesture. If multiple gestures are triggered, they will be queued across sensor frames.
+		/// </summary>
+		/// <param name="gesture"></param>
+		public void SimulateGesture(GestureId gesture)
+		{
+			if (gesture != GestureId.None)
+			{
+				_pendingGestures.Enqueue(gesture);
+			}
 		}
 
 		#endregion
@@ -52,6 +63,7 @@ namespace Bose.Wearable
 
 			_virtualDevice.isConnected = true;
 			_connectedDevice = _virtualDevice;
+			_nextSensorUpdateTime = Time.unscaledTime;
 
 			if (onSuccess != null)
 			{
@@ -98,6 +110,23 @@ namespace Bose.Wearable
 		internal override SensorUpdateInterval GetSensorUpdateInterval()
 		{
 			return _sensorUpdateInterval;
+		}
+
+		internal override RotationSensorSource GetRotationSource()
+		{
+			return _rotationSource;
+		}
+
+		internal override void SetRotationSource(RotationSensorSource source)
+		{
+			if (_connectedDevice == null)
+			{
+				Debug.LogWarning(WearableConstants.SetRotationSourceWithoutDeviceWarning);
+				return;
+			}
+
+			Debug.Log(WearableConstants.MobileProviderRotationSourceUnsupportedInfo);
+			_rotationSource = source;
 		}
 
 		internal override void StartSensor(SensorId sensorId)
@@ -179,7 +208,8 @@ namespace Bose.Wearable
 
 			_wasGyroEnabled = _gyro.enabled;
 			_gyro.enabled = true;
-			_lastSensorFrame.timestamp = Time.unscaledTime;
+			_nextSensorUpdateTime = Time.unscaledTime;
+			_pendingGestures.Clear();
 		}
 
 		internal override void OnDisableProvider()
@@ -195,43 +225,57 @@ namespace Bose.Wearable
 			{
 				return;
 			}
-
-			if (Time.unscaledTime >= _nextSensorUpdateTime)
+			
+			// Clear the current frames; _lastSensorFrame will retain its previous value.
+			if (_currentSensorFrames.Count > 0)
 			{
-				_nextSensorUpdateTime += WearableTools.SensorUpdateIntervalToSeconds(_sensorUpdateInterval);
+				_currentSensorFrames.Clear();
+			}
 
+			if (_connectedDevice == null)
+			{
+				return;
+			}
+
+			while (Time.unscaledTime >= _nextSensorUpdateTime)
+			{
+				// If it's time to emit frames, do so until we have caught up.
+				float deltaTime = WearableTools.SensorUpdateIntervalToSeconds(_sensorUpdateInterval);
+				_nextSensorUpdateTime += deltaTime;
+
+
+				bool anySensorsEnabled = false;
+				
 				// Update all active sensors
 				if (_sensorStatus[SensorId.Accelerometer])
 				{
 					UpdateAccelerometerData();
+					anySensorsEnabled = true;
 				}
 
 				if (_sensorStatus[SensorId.Gyroscope])
 				{
 					UpdateGyroscopeData();
+					anySensorsEnabled = true;
 				}
 
-				if (_sensorStatus[SensorId.Rotation] || _sensorStatus[SensorId.GameRotation])
+				if (_sensorStatus[SensorId.Rotation])
 				{
 					UpdateRotationSensorData();
+					anySensorsEnabled = true;
 				}
+				
+				// Emit a gesture if needed
+				bool gestureEmitted = UpdateGestureData();
 
-				UpdateGestureData();
-
-				// Update the timestamp and delta-time, then emit the frame
-				_lastSensorFrame.deltaTime = Time.unscaledTime - _lastSensorFrame.timestamp;
-				_lastSensorFrame.timestamp = Time.unscaledTime;
-
-				_currentSensorFrames.Clear();
-				_currentSensorFrames.Add(_lastSensorFrame);
-				OnSensorsUpdated(_lastSensorFrame);
-			}
-			else
-			{
-				// Otherwise, the list should be empty. _lastSensorFrame will retain its previous value.
-				if (_currentSensorFrames.Count > 0)
+				if (anySensorsEnabled || gestureEmitted)
 				{
-					_currentSensorFrames.Clear();
+					// Update the timestamp and delta-time and emit
+					_lastSensorFrame.deltaTime = deltaTime;
+					_lastSensorFrame.timestamp = _nextSensorUpdateTime;
+					
+					_currentSensorFrames.Add(_lastSensorFrame);
+					OnSensorsOrGestureUpdated(_lastSensorFrame);
 				}
 			}
 		}
@@ -245,10 +289,12 @@ namespace Bose.Wearable
 
 		private readonly Dictionary<SensorId, bool> _sensorStatus;
 		private SensorUpdateInterval _sensorUpdateInterval;
+		private RotationSensorSource _rotationSource;
 		private float _nextSensorUpdateTime;
 
 		// Gestures
 		private readonly Dictionary<GestureId, bool> _gestureStatus;
+		private readonly Queue<GestureId> _pendingGestures;
 
 		private Device _virtualDevice;
 
@@ -268,10 +314,11 @@ namespace Bose.Wearable
 			_sensorUpdateInterval = WearableConstants.DefaultUpdateInterval;
 			_nextSensorUpdateTime = 0.0f;
 
+			_rotationSource = WearableConstants.DefaultRotationSource;
+
 			_sensorStatus.Add(SensorId.Accelerometer, false);
 			_sensorStatus.Add(SensorId.Gyroscope, false);
 			_sensorStatus.Add(SensorId.Rotation, false);
-			_sensorStatus.Add(SensorId.GameRotation, false);
 
 			// All gestures start disabled.
 			_gestureStatus = new Dictionary<GestureId, bool>();
@@ -284,6 +331,7 @@ namespace Bose.Wearable
 
 				_gestureStatus.Add(WearableConstants.GestureIds[i], false);
 			}
+			_pendingGestures = new Queue<GestureId>();
 		}
 
 		/// <summary>
@@ -308,7 +356,6 @@ namespace Bose.Wearable
 
 		/// <summary>
 		/// Copy over the mobile device's orientation data to the cached sensor frame, changing frames of reference as needed.
-		/// Game rotation is set to the same value as rotation.
 		/// </summary>
 		private void UpdateRotationSensorData()
 		{
@@ -322,18 +369,28 @@ namespace Bose.Wearable
 				InverseRootTwo * (raw.w + raw.x)
 			);
 			_lastSensorFrame.rotation.measurementUncertainty = 0.0f;
-
-			_lastSensorFrame.gameRotation = _lastSensorFrame.rotation;
 		}
 
 
 		/// <summary>
-		/// Copy any enabled gestures to the cached sensor frame. 
+		/// Simulate some gesture data.
 		/// </summary>
-		private void UpdateGestureData()
+		/// <returns>True if a gesture was generated, else false</returns>
+		private bool UpdateGestureData()
 		{
-			// NOTE: Gestures are not currently implemented within the WearableMobileProvider.
+			if (_pendingGestures.Count > 0)
+			{
+				GestureId gesture = _pendingGestures.Dequeue();
+				if (_gestureStatus[gesture])
+				{
+					// If the gesture is enabled, go ahead and trigger it.
+					_lastSensorFrame.gestureId = gesture;
+					return true;
+				}
+			}
+			
 			_lastSensorFrame.gestureId = GestureId.None;
+			return false;
 		}
 
 		#endregion

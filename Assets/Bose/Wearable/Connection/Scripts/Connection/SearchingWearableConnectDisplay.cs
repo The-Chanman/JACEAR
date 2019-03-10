@@ -38,6 +38,8 @@ namespace Bose.Wearable
 		[SerializeField]
 		private AudioClip _sfxFoundDevice;
 
+		private const string DeviceNameUidSortFormat = "{0}_{1}";
+
 		// Device Tracking & Button Pool
 		private List<Device> _devicesCurrent;
 		private List<Device> _devicesAddedOnDiscovery;
@@ -214,10 +216,10 @@ namespace Bose.Wearable
 		/// </summary>
 		private void ResolveDeviceChanges()
 		{
-			// resolve the deltas to the current devices, and resort based on the current RSSI of the devices.
-			_devicesCurrent.RemoveAll(device => _devicesRemovedOnDiscovery.Contains(device));
+			// resolve the deltas to the current devices, and re-sort based on the name of the devices.
+			_devicesCurrent.RemoveAll(_devicesRemovedOnDiscovery.Contains);
 			_devicesCurrent.AddRange(_devicesAddedOnDiscovery);
-			_devicesCurrent.Sort((a, b) => b.rssi.CompareTo(a.rssi));
+			_devicesCurrent.Sort(CompareDevicesBasedOnName);
 
 			// reclaim all devices we want to remove.
 			for (int i = 0; i < _devicesRemovedOnDiscovery.Count; ++i)
@@ -238,6 +240,21 @@ namespace Bose.Wearable
 
 				deviceButton.transform.SetSiblingIndex(i);
 			}
+		}
+
+		/// <summary>
+		/// Compare <see cref="Device"/> <paramref name="x"/> with <see cref="Device"/> <paramref name="y"/>
+		/// based on combination of <seealso cref="Device.name"/> and <seealso cref="Device.uid"/>.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <returns></returns>
+		private static int CompareDevicesBasedOnName(Device x, Device y)
+		{
+			return string.Compare(
+				string.Format(DeviceNameUidSortFormat, x.name, x.uid),
+				string.Format(DeviceNameUidSortFormat, y.name, y.uid),
+				StringComparison.Ordinal);
 		}
 
 		/// <summary>

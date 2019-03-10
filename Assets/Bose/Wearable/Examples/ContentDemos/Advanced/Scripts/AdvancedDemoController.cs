@@ -82,47 +82,12 @@ namespace Bose.Wearable.Examples
 		{
 			// Grab an instance of the WearableControl singleton. This is the primary access point to the wearable SDK.
 			_wearableControl = WearableControl.Instance;
-
-			// Subscribe to DeviceConnected to handle reconnects that happen during play.
-			_wearableControl.DeviceConnected += OnDeviceConnected;
-		}
-
-		private void OnDestroy()
-		{
-			// Ensure that the controller is no longer subscribing to connections after it is destroyed.
-			if (WearableControl.Instance != null)
-			{
-				WearableControl.Instance.DeviceConnected -= OnDeviceConnected;
-			}
 		}
 
 		private void Start()
 		{
 			// Begin calibration immediately.
 			StartCalibration();
-		}
-
-		private void OnEnable()
-		{
-			// If a device is connected, immediately start the rotation and gyroscope sensors
-			// This ensures that we will receive data from the sensors during play.
-			StartSensors();
-		}
-
-		private void OnDisable()
-		{
-			// If a device is still connected, stop the rotation sensor and gyroscope when the controller is disabled.
-			if (_wearableControl.ConnectedDevice != null)
-			{
-				_wearableControl.RotationSensor.Stop();
-				_wearableControl.GyroscopeSensor.Stop();
-			}
-		}
-
-		private void OnDeviceConnected(Device obj)
-		{
-			// If a device is reconnected during play, ensures the sensors are still running.
-			StartSensors();
 		}
 
 		/// <summary>
@@ -134,19 +99,6 @@ namespace Bose.Wearable.Examples
 		{
 			_calibrating = true;
 			_calibrationStartTime = Time.unscaledTime;
-		}
-
-		/// <summary>
-		/// Configures the update interval and sets all needed sensors
-		/// </summary>
-		private void StartSensors()
-		{
-			if (_wearableControl.ConnectedDevice != null)
-			{
-				_wearableControl.SetSensorUpdateInterval(SensorUpdateInterval.FortyMs);
-				_wearableControl.RotationSensor.Start();
-				_wearableControl.GyroscopeSensor.Start();
-			}
 		}
 
 		/// <summary>

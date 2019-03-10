@@ -14,12 +14,16 @@ namespace Bose.Wearable.Examples
 		private Button _basicDemoButton;
 
 		[SerializeField]
+		private Button _gestureDemoButton;
+
+		[SerializeField]
 		private Button _advancedDemoButton;
 
 		private void Awake()
 		{
 			_basicDemoButton.onClick.AddListener(OnBasicDemoButtonClicked);
 			_advancedDemoButton.onClick.AddListener(OnAdvancedDemoButtonClicked);
+			_gestureDemoButton.onClick.AddListener(OnGestureDemoButtonClicked);
 
 			ToggleInteractivity(true);
 		}
@@ -28,6 +32,7 @@ namespace Bose.Wearable.Examples
 		{
 			_basicDemoButton.onClick.RemoveAllListeners();
 			_advancedDemoButton.onClick.RemoveAllListeners();
+			_gestureDemoButton.onClick.RemoveAllListeners();
 		}
 
 		private void OnAdvancedDemoButtonClicked()
@@ -40,6 +45,13 @@ namespace Bose.Wearable.Examples
 		private void OnBasicDemoButtonClicked()
 		{
 			LoadingUIPanel.Instance.LoadScene(WearableConstants.BasicDemoScene, LoadSceneMode.Single);
+
+			ToggleInteractivity(false);
+		}
+
+		private void OnGestureDemoButtonClicked()
+		{
+			LoadingUIPanel.Instance.LoadScene(WearableConstants.GestureDemoScene, LoadSceneMode.Single);
 
 			ToggleInteractivity(false);
 		}

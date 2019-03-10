@@ -96,6 +96,8 @@ namespace Bose.Wearable.Proxy
 			_protocol.QuerySensorStatus += OnQuerySensorStatusPacket;
 			_protocol.QueryGestureStatus += OnQueryGestureStatusPacket;
 			_protocol.PingQuery += OnPingQuery;
+			_protocol.SetRotationSource += OnSetRotationSourcePacket;
+			_protocol.QueryRotationSource += OnQueryRotationSourcePacket;
 
 			_listener = new TcpListener(IPAddress.Any, _port);
 			_receiveBuffer = new byte[WearableProxyProtocolBase.SuggestedClientToServerBufferSize];
@@ -208,6 +210,9 @@ namespace Bose.Wearable.Proxy
 
 			// Update interval value
 			WearableProxyServerProtocol.EncodeUpdateIntervalValue(_transmitBuffer, ref _transmitIndex, _deviceProvider.GetSensorUpdateInterval());
+			
+			// Rotation source
+			WearableProxyServerProtocol.EncodeRotationSourceValue(_transmitBuffer, ref _transmitIndex, _deviceProvider.GetRotationSource());
 
 			// Sensor status
 			SensorId[] sensors = (SensorId[]) Enum.GetValues(typeof(SensorId));
@@ -488,6 +493,21 @@ namespace Bose.Wearable.Proxy
 			_transmitIndex = 0;
 			_deviceProvider.SetSensorUpdateInterval(interval);
 			WearableProxyServerProtocol.EncodeUpdateIntervalValue(_transmitBuffer, ref _transmitIndex, interval);
+			SendTransmitBuffer();
+		}
+
+		private void OnQueryRotationSourcePacket()
+		{
+			_transmitIndex = 0;
+			WearableProxyServerProtocol.EncodeRotationSourceValue(_transmitBuffer, ref _receiveIndex, _deviceProvider.GetRotationSource());
+			SendTransmitBuffer();
+		}
+
+		private void OnSetRotationSourcePacket(RotationSensorSource source)
+		{
+			_transmitIndex = 0;
+			_deviceProvider.SetRotationSource(source);
+			WearableProxyServerProtocol.EncodeRotationSourceValue(_transmitBuffer, ref _transmitIndex, source);
 			SendTransmitBuffer();
 		}
 	}

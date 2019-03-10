@@ -63,30 +63,17 @@ namespace Bose.Wearable
 		{
 			// Begin in absolute mode and cache the wearable controller.
 			_wearableControl = WearableControl.Instance;
-			_wearableControl.DeviceConnected += OnDeviceConnected;
-
 			_mode = RotationReference.Absolute;
 			_inverseReference = Quaternion.identity;
-		}
 
-		private void OnEnable()
-		{
-			StartRotationSensor();
-		}
-
-		private void OnDeviceConnected(Device device)
-		{
-			StartRotationSensor();
-		}
-
-		private void StartRotationSensor()
-		{
-			if (_wearableControl.ConnectedDevice == null)
+			// Establish a requirement for the rotation sensor
+			WearableRequirement requirement = GetComponent<WearableRequirement>();
+			if (requirement == null)
 			{
-				return;
+				requirement = gameObject.AddComponent<WearableRequirement>();
 			}
-
-			_wearableControl.RotationSensor.Start();
+			requirement.EnableSensor(SensorId.Rotation);
+			requirement.SetSensorUpdateInterval(SensorUpdateInterval.EightyMs);
 		}
 
 		private void Update()

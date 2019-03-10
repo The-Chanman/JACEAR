@@ -17,7 +17,6 @@ namespace Bose.Wearable
 		public SensorVector3 acceleration;
 		public SensorVector3 angularVelocity;
 		public SensorQuaternion rotation;
-		public SensorQuaternion gameRotation;
 		public GestureId gestureId;
 	}
 }

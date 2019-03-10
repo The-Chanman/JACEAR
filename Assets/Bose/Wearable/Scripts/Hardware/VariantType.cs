@@ -10,6 +10,8 @@ namespace Bose.Wearable
 	{
 		Unknown = 0,
 		BoseFramesAlto = 1,
-		BoseFramesRondo = 2
+		BoseFramesRondo = 2,
+		QuietComfort35TwoBlack = 3,
+		QuietComfort35TwoSilver = 4
 	}
 }

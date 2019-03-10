@@ -22,9 +22,9 @@ namespace Bose.Wearable
 		internal event Action<Device> DeviceDisconnected;
 
 		/// <summary>
-		/// Invoked when there are sensor updates from the Wearable device.
+		/// Invoked when there are sensor or gesture updates from the Wearable device.
 		/// </summary>
-		internal event Action<SensorFrame> SensorsUpdated;
+		internal event Action<SensorFrame> SensorsOrGestureUpdated;
 
 		/// <summary>
 		/// Whether or not the provider has been initialized
@@ -77,16 +77,6 @@ namespace Bose.Wearable
 		protected Device? _connectedDevice;
 
 		/// <summary>
-		/// The rotation mode that should be used by the device.
-		/// </summary>
-		internal RotationMode RotationMode
-		{
-			get { return _rotationMode; }
-		}
-
-		protected RotationMode _rotationMode;
-
-		/// <summary>
 		/// Searches for all Wearable devices that can be connected to.
 		/// </summary>
 		/// <param name="onDevicesUpdated"></param>
@@ -121,6 +111,18 @@ namespace Bose.Wearable
 		/// Get the update interval of all sensors on the provider.
 		/// </summary>
 		internal abstract SensorUpdateInterval GetSensorUpdateInterval();
+		
+		/// <summary>
+		/// Set the data source for the rotation sensor.
+		/// </summary>
+		/// <param name="source"></param>
+		internal abstract void SetRotationSource(RotationSensorSource source);
+
+		/// <summary>
+		/// Get the data source for the rotation sensor.
+		/// </summary>
+		/// <returns></returns>
+		internal abstract RotationSensorSource GetRotationSource();
 
 		/// <summary>
 		/// Start a sensor with a given <see cref="SensorId"/>. Providers should override this method.
@@ -143,19 +145,19 @@ namespace Bose.Wearable
 		internal abstract bool GetSensorActive(SensorId sensorId);
 
 		/// <summary>
-		/// Start a Gesture with a given <see cref="GestureId"/>.
+		/// Start a Gesture with a given <see cref="GestureId"/>. Will never be called with None.
 		/// </summary>
 		/// <param name="gestureId"></param>
 		internal abstract void EnableGesture(GestureId gestureId);
 
 		/// <summary>
-		/// Stop a Gesture with a given <see cref="GestureId"/>.
+		/// Stop a Gesture with a given <see cref="GestureId"/>. Will never be called with None.
 		/// </summary>
 		/// <param name="gestureId"></param>
 		internal abstract void DisableGesture(GestureId gestureId);
 
 		/// <summary>
-		/// Returns whether or not a gesture with a given <see cref="GestureId"/> is enabled.
+		/// Returns whether or not a gesture with a given <see cref="GestureId"/> is enabled. Will never be called with None.
 		/// </summary>
 		/// <param name="gestureId"></param>
 		/// <returns></returns>
@@ -258,14 +260,14 @@ namespace Bose.Wearable
 		}
 
 		/// <summary>
-		/// Invokes the <see cref="SensorsUpdated"/> event.
+		/// Invokes the <see cref="SensorsOrGestureUpdated"/> event.
 		/// </summary>
 		/// <param name="frame"></param>
-		protected void OnSensorsUpdated(SensorFrame frame)
+		protected void OnSensorsOrGestureUpdated(SensorFrame frame)
 		{
-			if (SensorsUpdated != null)
+			if (SensorsOrGestureUpdated != null)
 			{
-				SensorsUpdated.Invoke(frame);
+				SensorsOrGestureUpdated.Invoke(frame);
 			}
 		}
 	}

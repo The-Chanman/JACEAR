@@ -8,10 +8,13 @@ namespace Bose.Wearable
 		public static readonly SensorFrame EmptyFrame;
 		public static readonly Device[] EmptyDeviceList;
 		public static readonly GestureId[] GestureIds;
+		public static readonly SensorId[] SensorIds;
 
 		public const string EmptyUID = "00000000-0000-0000-0000-000000000000";
 
 		public const SensorUpdateInterval DefaultUpdateInterval = SensorUpdateInterval.EightyMs;
+
+		public const RotationSensorSource DefaultRotationSource = RotationSensorSource.SixDof;
 
 		/// <summary>
 		/// Conversion from sensor timestamps (millis) to Unity time (seconds).
@@ -21,7 +24,7 @@ namespace Bose.Wearable
 		/// <summary>
 		/// The default RSSI threshold that devices will be filtered by.
 		/// </summary>
-		public const int DefaultRSSIThreshold = -50;
+		public const int DefaultRSSIThreshold = -65;
 
 		/// <summary>
 		/// The minimum rssi threshold value.
@@ -32,6 +35,12 @@ namespace Bose.Wearable
 		/// The maximum rssi threshold value.
 		/// </summary>
 		public const int MaximumRSSIValue = -30;
+
+		/// <summary>
+		/// The number of seconds to wait when the sensor frequency update capability has been locked before
+		/// unlocking it.
+		/// </summary>
+		public const float NumberOfSecondsToLockSensorFrequencyUpdate = 0.33f;
 
 		public const float DeviceConnectUpdateIntervalInSeconds = 1.0f;
 		public const float DeviceUSBConnectUpdateIntervalInSeconds = 2.0f;
@@ -49,7 +58,7 @@ namespace Bose.Wearable
 		                                                                "with message '{0}'.";
 
 		public const string ArchitectureAlterationWarningWithMessage = "[Bose Wearable] iOS Architecture forced to 'ARM64'. " +
-																	 "Was set to '{0}'.";
+																	"Was set to '{0}'.";
 		public const string iOSVersionAlterationWarningWithMessage = "[Bose Wearable] iOS Minimum Version forced to '{0}'. Was set to '{1}'.";
 
 		public const string iOSBluetoothAlterationWarning = "[Bose Wearable] Background Mode forced to allow connections to BLE devices.";
@@ -57,17 +66,27 @@ namespace Bose.Wearable
 		public const string StartSensorWithoutDeviceWarning = "[Bose Wearable] A device must be connected before starting a sensor. " +
 		                                                      "The sensor will not be started when device connects.";
 		public const string SetUpdateRateWithoutDeviceWarning = "[Bose Wearable] A device must be connected before setting the " +
-																"update interval. The rate will not be set when a device conneccts.";
+																"update interval. The rate will not be set when a device connects.";
+		public const string SetRotationSourceWithoutDeviceWarning = "[Bose Wearable] A device must be connected before setting the " +
+																	"rotation source.";
 		public const string EnableGestureWithoutDeviceWarning = "[Bose Wearable] A device must be connected before starting a gesture. " +
 															  "The gesture will not be started when device connects.";
 		public const string DisableGestureWithoutDeviceWarning = "[Bose Wearable] A device must be connected before disabling a gesture.";
 		public const string EnableGestureNotSupportedWarning = "[Bose Wearable] Attempted to start gesture {0}, which is not supported.";
 		public const string DisableGestureNotSupportedWarning = "[Bose Wearable] Attempted to stop gesture {0}, which is not supported.";
 
+		public const string SensorUpdateIntervalDecreasedWarning = "[BoseWearable] A SensorUpdateInterval of TwentyMs cannot be used when " +
+		                                                           "three or more sensors are enabled; this value has been changed to FourtyMs " +
+		                                                           "to prevent a fatal crash.";
+
 		public const string GestureIdNoneInvalidError = "[Bose Wearable] GestureId.None will not return a valid WearableGesture.";
 
-		public const string WearableGestureNotYetSupported = "GestureId.{0} is not yet supported yet and will not return a " +
+		public const string WearableGestureNotYetSupported = "[Bose Wearable] GestureId.{0} is not yet supported yet and will not return a " +
 		                                                     "valid WearableGesture";
+
+		public const string OnlyOneSensorFrequencyUpdatePerFrameWarning =
+			"[Bose Wearable] Device state can only be updated once per frame and is locked for several seconds afterward; " +
+		    "additional updates after the first will not occur until this has been unlocked.";
 
 		public const string DuplicateWearableModelProductTypeWarning =
 			"[Bose Wearable] There is a duplicate WearableModel ProductType " +
@@ -76,6 +95,11 @@ namespace Bose.Wearable
 		public const string DuplicateWearableModelVariantTypeWarning =
 			"[Bose Wearable] There is a duplicate WearableModel VariantType " +
 			"definition for {0} on this WearableModelLoader";
+
+		public const string RotationSourceSelectionUnsupportedWarning =
+			"[Bose Wearable] Rotation source selection is not implemented by the active provider.";
+		public const string NoneIsInvalidGesture = "[Bose Wearable] GestureId.None is an invalid value to " +
+		                                            "set on [{0}].";
 
 		// Debug Provider Defaults
 		public const string DebugProviderDefaultDeviceName = "Debug Device";
@@ -97,16 +121,26 @@ namespace Bose.Wearable
 		public const string DebugProviderStartSensor = "[Bose Wearable] Debug provider starting sensor {0}";
 		public const string DebugProviderStopSensor = "[Bose Wearable] Debug provider stopping sensor {0}";
 		public const string DebugProviderSetUpdateInterval = "[Bose Wearable] Debug provider setting update interval to {0}";
+		public const string DebugProviderSetRotationSource = "[Bose Wearable] Debug provider setting rotation source to {0}";
 		public const string DebugProviderInvalidConnectionWarning = "[Bose Wearable] Debug provider may only connect to" +
 																	"its own virtual device as returned by SearchForDevices().";
 		public const string DebugProviderSimulateDisconnect = "[Bose Wearable] Debug provider simulating a disconnected device.";
 		public const string DebugProviderEnableGesture = "[Bose Wearable] Debug provider starting gesture {0}";
 		public const string DebugProviderDisableGesture = "[Bose Wearable] Debug provider stopping gesture {0}";
+		public const string DebugProviderRotationSourceUnsupportedInfo = "[Bose Wearable] Setting the rotation source " +
+																		 "has no effect when using the debug provider, " +
+																		 "and will be ignored.";
+		public const string DebugProviderTriggerDisabledGestureWarning =
+			"[Bose Wearable] A gesture was triggered that is not currently enabled. This gesture will be ignored.";
+		public const string DebugProviderTriggerGesture = "[Bose Wearable] Simulating gesture {0}.";
 
 		// Mobile Provider Messages
 		public const string MobileProviderDeviceName = "Mobile Device Simulator";
 		public const ProductId MobileProviderProductId = ProductId.Undefined;
 		public const byte MobileProviderVariantId = 0;
+		public const string MobileProviderRotationSourceUnsupportedInfo = "[Bose Wearable] Setting the rotation source " +
+																		  "has no effect when using the mobile provider, " +
+																		  "and will be ignored.";
 
 		// Proxy Provider Messages
 		public const string ProxyProviderInvalidVersionError = "[Bose Wearable] Unsupported proxy protocol version." +
@@ -127,6 +161,10 @@ namespace Bose.Wearable
 		                                                    "functionality will be swapped with a debug version to allow " +
 		                                                    "for testing searching, connecting to, and receiving sensor " +
 		                                                    "updates from a virtual device.";
+
+		// Build Tools Messages
+		public const string BuildToolsUnsupportedPlatformWarning = "[Bose Wearable] Trying to build for unsupported platform {0}.";
+
 		// Runtime Dialogs
 		public const string DeviceConnectSuccessMessage = "Device connected successfully!";
 		public const string DeviceConnectFailureMessage = "Device failed to connect!";
@@ -189,8 +227,10 @@ namespace Bose.Wearable
 		public const string MainMenuScene = "MainMenu";
 		public const string BasicDemoScene = "BasicDemo";
 		public const string AdvancedDemoScene = "AdvancedDemo";
+		public const string GestureDemoScene = "GestureDemo";
 
 		// Inspector
+		public const float SingleLineHeight = 20f;
 		public static readonly GUILayoutOption[] EmptyLayoutOptions;
 
 		static WearableConstants()
@@ -206,6 +246,7 @@ namespace Bose.Wearable
 			EmptyLayoutOptions = new GUILayoutOption[0];
 
 			GestureIds = (GestureId[])Enum.GetValues(typeof(GestureId));
+			SensorIds = (SensorId[])Enum.GetValues(typeof(SensorId));
 		}
 	}
 }

@@ -3,10 +3,10 @@
 namespace Bose.Wearable
 {
 	/// <summary>
-	/// The variant ID of a BoseFrames hardware device.
+	/// The VariantId of a BoseFrames hardware device.
 	/// </summary>
 	[Serializable]
-	public enum BoseFramesVariantID : byte
+	public enum BoseFramesVariantId : byte
 	{
 		Undefined = 0,
 		BoseFramesAlto = 0x01,

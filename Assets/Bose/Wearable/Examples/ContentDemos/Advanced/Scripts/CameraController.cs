@@ -21,7 +21,7 @@ namespace Bose.Wearable.Examples
 
 		/// <summary>
 		/// Control-Display ratio of the controller. The camera will rotate by this many degrees when swiping completely
-		/// across the screen. 
+		/// across the screen.
 		/// </summary>
 		[SerializeField]
 		protected float _cdRatio;
