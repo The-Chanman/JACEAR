@@ -23,6 +23,8 @@ namespace Bose.Wearable.Proxy
 		public event Action<SensorUpdateInterval> SetUpdateInterval;
 		public event Action QuerySensorStatus;
 		public event Action QueryGestureStatus;
+		public event Action QueryRotationSource;
+		public event Action<RotationSensorSource> SetRotationSource;
 
 		#region Decoding
 
@@ -212,12 +214,36 @@ namespace Bose.Wearable.Proxy
 
 					break;
 				}
+				case PacketTypeCode.QueryRotationSource:
+				{
+					CheckFooter(buffer, ref index);
+
+					if (QueryRotationSource != null)
+					{
+						QueryRotationSource.Invoke();
+					}
+
+					break;
+				}
+				case PacketTypeCode.SetRotationSource:
+				{
+					RotationSensorSource source = DecodeRotationSource(buffer, ref index);
+					CheckFooter(buffer, ref index);
+
+					if (SetRotationSource != null)
+					{
+						SetRotationSource.Invoke(source);
+					}
+
+					break;
+				}
 				case PacketTypeCode.SensorFrame:
 				case PacketTypeCode.DeviceList:
 				case PacketTypeCode.ConnectionStatus:
 				case PacketTypeCode.SensorStatus:
 				case PacketTypeCode.UpdateIntervalValue:
 				case PacketTypeCode.GestureStatus:
+				case PacketTypeCode.RotationSourceValue:
 					// Known, but contextually-invalid packet
 					throw new WearableProxyProtocolException(WearableConstants.ProxyProviderInvalidPacketError);
 				default:
@@ -402,6 +428,20 @@ namespace Bose.Wearable.Proxy
 			UpdateIntervalPacket packet = EncodeUpdateInterval(interval);
 			SerializePacket(buffer, ref index, packet);
 
+			// Encode footer
+			SerializePacket(buffer, ref index, _footer);
+		}
+
+		public static void EncodeRotationSourceValue(byte[] buffer, ref int index, RotationSensorSource source)
+		{
+			// Encode header
+			PacketHeader header = new PacketHeader(PacketTypeCode.RotationSourceValue);
+			SerializePacket(buffer, ref index, header);
+			
+			// Encode payload
+			RotationSourcePacket packet = EncodeRotationSource(source);
+			SerializePacket(buffer, ref index, packet);
+			
 			// Encode footer
 			SerializePacket(buffer, ref index, _footer);
 		}

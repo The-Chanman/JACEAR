@@ -1,22 +1,12 @@
-﻿using System;
-
-namespace Bose.Wearable {
+﻿namespace Bose.Wearable
+{
 	/// <summary>
-	/// 	When using SixDof:
-	///     	- magnetometer is not used to improve rotation stability.
-	///     	- "gameRotation" on the SensorFrame is not updated.
-	/// 	When using NineDof:
-	/// 		- magnetometer is enabled to improve rotation stability.
-	///     	- "gameRotation" on the SensorFrame is not updated.
-	/// 	When using Both:
-	///		- "rotation" of SensorFrame is equivalent to using NineDof
-	///		- "gameRotation" of SensorFrame is equivalent to using SixDof
+	/// When using SixDof, the "Game Rotation" sensor, which uses the gyro and accel, is used to determine the current heading.
+	/// When using NineDof, the "Rotation" sensor, which uses the gyro, accel, and megnetometer, is used.
 	/// </summary>
-	[Flags]
-	public enum RotationMode
+	public enum RotationSensorSource
 	{
-		SixDof = (1 << 0),
-		NineDof = (1 << 1),
-		Both = (SixDof | NineDof)
+		SixDof,
+		NineDof
 	}
 }

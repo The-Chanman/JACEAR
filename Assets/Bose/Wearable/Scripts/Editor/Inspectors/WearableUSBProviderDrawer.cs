@@ -12,9 +12,20 @@ namespace Bose.Wearable.Editor.Inspectors
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
+			GUI.changed = false;
 			EditorGUILayout.HelpBox(DescriptionBox, MessageType.None);
 			EditorGUILayout.Space();
 			EditorGUILayout.PropertyField(property.FindPropertyRelative(DebugLoggingField), WearableConstants.EmptyLayoutOptions);
+
+			if (Application.isPlaying && GUI.changed)
+			{
+				property.serializedObject.ApplyModifiedProperties();
+				WearableUSBProvider asUSBProvider = WearableControl.Instance.ActiveProvider as WearableUSBProvider;
+				if (asUSBProvider != null)
+				{
+					asUSBProvider.SetDebugLoggingInPlugin();
+				}
+			}
 		}
 	}
 }

@@ -7,7 +7,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
@@ -42,6 +41,14 @@ namespace Bose.Wearable
 		StringBuilder _uidBuilder;
 		StringBuilder _nameBuilder;
 		#pragma warning restore 0414
+
+
+		public void SetDebugLoggingInPlugin()
+		{
+			#if UNITY_EDITOR
+			WearableUSBSetDebugLogging(_debugLogging);
+			#endif // UNITY_EDITOR
+		}
 
 		#endregion // Provider-Specific
 
@@ -165,6 +172,26 @@ namespace Bose.Wearable
 			#endif // UNITY_EDITOR
 		}
 
+		internal override RotationSensorSource GetRotationSource()
+		{
+			return _rotationSource;
+		}
+
+		internal override void SetRotationSource(RotationSensorSource source)
+		{
+			if (_connectedDevice == null)
+			{
+				Debug.LogWarning(WearableConstants.SetRotationSourceWithoutDeviceWarning);
+				return;
+			}
+
+			_rotationSource = source;
+
+			#if UNITY_EDITOR
+			WearableUSBSetRotationSource((int)source);
+			#endif
+		}
+
 		internal override void StartSensor(SensorId sensorId)
 		{
 			if (_connectedDevice == null)
@@ -215,7 +242,7 @@ namespace Bose.Wearable
 				return;
 			}
 
-			if (_gestureStatus[gestureId] == true)
+			if (_gestureStatus[gestureId])
 			{
 				return;
 			}
@@ -369,6 +396,7 @@ namespace Bose.Wearable
 		// Sensor status
 		private readonly Dictionary<SensorId, bool> _sensorStatus;
 		private SensorUpdateInterval _sensorUpdateInterval;
+		private RotationSensorSource _rotationSource;
 
 		// Gesture status
 		private readonly Dictionary<GestureId, bool> _gestureStatus;
@@ -393,7 +421,6 @@ namespace Bose.Wearable
 
 		internal WearableUSBProvider()
 		{
-			_debugLogging = true;
 			_statusMessageSeparators = new char[] { '\n' };
 			_sessionStatus = SessionStatus.Closed;
 			_statusMessage = new StringBuilder(8192);
@@ -402,11 +429,11 @@ namespace Bose.Wearable
 
 			_sensorStatus = new Dictionary<SensorId, bool>();
 			_sensorUpdateInterval = WearableConstants.DefaultUpdateInterval;
+			_rotationSource = WearableConstants.DefaultRotationSource;
 
 			_sensorStatus.Add(SensorId.Accelerometer, false);
 			_sensorStatus.Add(SensorId.Gyroscope, false);
 			_sensorStatus.Add(SensorId.Rotation, false);
-			_sensorStatus.Add(SensorId.GameRotation, false);
 
 			_gestureStatus = new Dictionary<GestureId, bool>();
 			for (var i = 0; i < WearableConstants.GestureIds.Length; i++)
@@ -445,7 +472,6 @@ namespace Bose.Wearable
 						acceleration = frame.acceleration,
 						angularVelocity = frame.angularVelocity,
 						rotation = frame.rotation,
-						gameRotation = frame.gameRotation,
 						gestureId = frame.gesture
 					});
 				}
@@ -453,7 +479,7 @@ namespace Bose.Wearable
 				if (anyNewSensorFrames)
 				{
 					_lastSensorFrame = _currentSensorFrames[_currentSensorFrames.Count - 1];
-					OnSensorsUpdated(_lastSensorFrame);
+					OnSensorsOrGestureUpdated(_lastSensorFrame);
 				}
 			}
 			#endif // UNITY_EDITOR
@@ -646,7 +672,6 @@ namespace Bose.Wearable
 				_sensorStatus[SensorId.Accelerometer] = false;
 				_sensorStatus[SensorId.Gyroscope] = false;
 				_sensorStatus[SensorId.Rotation] = false;
-				_sensorStatus[SensorId.GameRotation] = false;
 
 				for (var i = 0; i < WearableConstants.GestureIds.Length; i++)
 				{
@@ -678,7 +703,6 @@ namespace Bose.Wearable
 
 		#endregion // Private
 
-
 		#region DLL Imports
 
 		#if UNITY_EDITOR
@@ -695,7 +719,6 @@ namespace Bose.Wearable
 			public SensorVector3 acceleration;
 			public SensorVector3 angularVelocity;
 			public SensorQuaternion rotation;
-			public SensorQuaternion gameRotation;
 			public GestureId gesture;
 		}
 
@@ -797,6 +820,12 @@ namespace Bose.Wearable
 		/// </summary>
 		[DllImport("BoseWearableUSBBridge")]
 		private static extern void WearableUSBDisableSensor(int sensorId);
+
+		/// <summary>
+		/// Switch our rotation data between RotationSensorSource.SixDof and RotationSensorSource.NineDof.
+		/// </summary>
+		[DllImport("BoseWearableUSBBridge")]
+		private static extern void WearableUSBSetRotationSource(int rotationSource);
 
 		/// <summary>
 		/// Enable a specific gesture by passing the desired <paramref name="gestureId"/> which is the int value

@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Bose.Wearable
 {
@@ -9,7 +10,6 @@ namespace Bose.Wearable
 	[RequireComponent(typeof(CanvasGroup), typeof(Canvas))]
 	public class WearableConnectUIPanel : Singleton<WearableConnectUIPanel>, ISelectionController<Device>
 	{
-
 		/// <summary>
 		/// Invoked when a device search has started.
 		/// </summary>
@@ -58,7 +58,9 @@ namespace Bose.Wearable
 
 		private Action _onClose;
 		private WearableControl _wearableControl;
-		private bool _isSetup;
+		private EventSystem _eventSystem;
+		
+		private const string CannotFindEventSystemWarning = "[Bose Wearable] Cannot find an EventSystem. WearableConnectUIPanel will not detect any input.";
 
 		/// <summary>
 		/// Initialize any local state or listeners
@@ -114,6 +116,8 @@ namespace Bose.Wearable
 		/// <param name="allowExitWithoutDevice"></param>
 		public void Show(Action onClose = null, bool allowExitWithoutDevice = false)
 		{
+			WarnIfNoEventSystemPresent();
+			
 			_onClose = onClose;
 			_canvas.enabled = true;
 			_canvasGroup.alpha = 1f;
@@ -126,6 +130,8 @@ namespace Bose.Wearable
 		/// </summary>
 		public void ShowWithoutSearching()
 		{
+			WarnIfNoEventSystemPresent();
+
 			_canvas.enabled = true;
 			_canvasGroup.alpha = 1f;
 
@@ -195,7 +201,19 @@ namespace Bose.Wearable
 		private void ToggleLockScreen(bool isInteractable)
 		{
 			_canvasGroup.interactable = isInteractable;
-			_canvasGroup.blocksRaycasts = isInteractable;
+		}
+
+		private void WarnIfNoEventSystemPresent()
+		{
+			if (_eventSystem == null)
+			{
+				_eventSystem = FindObjectOfType<EventSystem>();
+
+				if (_eventSystem == null)
+				{
+					Debug.LogWarning(CannotFindEventSystemWarning, this);
+				}
+			}
 		}
 
 		#region ISelectionController
@@ -215,19 +233,17 @@ namespace Bose.Wearable
 
 		private void OnDeviceConnectSuccess()
 		{
-			if(DeviceConnectSuccess != null)
+			if (DeviceConnectSuccess != null)
 			{
 				DeviceConnectSuccess();
 			}
 
 			ToggleLockScreen(true);
-            
-            
 		}
 
 		private void OnDeviceConnectFailure()
 		{
-			if(DeviceConnectFailure != null)
+			if (DeviceConnectFailure != null)
 			{
 				DeviceConnectFailure();
 			}

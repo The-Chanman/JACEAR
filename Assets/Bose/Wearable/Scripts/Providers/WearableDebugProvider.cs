@@ -65,6 +65,18 @@ namespace Bose.Wearable
 			DisconnectFromDevice();
 		}
 
+		/// <summary>
+		/// Simulate a triggered gesture. If multiple gestures are triggered, they will be queued across sensor frames.
+		/// </summary>
+		/// <param name="gesture"></param>
+		public void SimulateGesture(GestureId gesture)
+		{
+			if (gesture != GestureId.None)
+			{
+				_pendingGestures.Enqueue(gesture);
+			}
+		}
+
 		#endregion
 
 		#region WearableProvider Implementation
@@ -113,6 +125,7 @@ namespace Bose.Wearable
 
 			_virtualDevice.isConnected = true;
 			_connectedDevice = _virtualDevice;
+			_nextSensorUpdateTime = Time.unscaledTime;
 
 			if (_verbose)
 			{
@@ -176,6 +189,32 @@ namespace Bose.Wearable
 			}
 			
 			_sensorUpdateInterval = updateInterval;
+		}
+
+		internal override RotationSensorSource GetRotationSource()
+		{
+			return _rotationSource;
+		}
+
+		internal override void SetRotationSource(RotationSensorSource source)
+		{
+			// N.B. This has no affect on the simulated data.
+			
+			if (_connectedDevice == null)
+			{
+				Debug.LogWarning(WearableConstants.SetRotationSourceWithoutDeviceWarning);
+				return;
+			}
+
+			if (_verbose)
+			{
+				Debug.LogFormat(
+					WearableConstants.DebugProviderSetRotationSource, 
+					Enum.GetName(typeof(RotationSensorSource), source));
+			}
+
+			Debug.Log(WearableConstants.DebugProviderRotationSourceUnsupportedInfo);
+			_rotationSource = source;
 		}
 
 		internal override void StartSensor(SensorId sensorId)
@@ -291,6 +330,9 @@ namespace Bose.Wearable
 			{
 				Debug.Log(WearableConstants.DebugProviderEnable);
 			}
+			
+			_nextSensorUpdateTime = Time.unscaledTime;
+			_pendingGestures.Clear();
 		}
 
 		internal override void OnDisableProvider()
@@ -318,57 +360,82 @@ namespace Bose.Wearable
 				_currentSensorFrames.Clear();
 			}
 
+			if (_connectedDevice == null)
+			{
+				return;
+			}
+
 			while (Time.unscaledTime >= _nextSensorUpdateTime)
 			{
 				// If it's time to emit frames, do so until we have caught up.
 				float deltaTime = WearableTools.SensorUpdateIntervalToSeconds(_sensorUpdateInterval);
 				_nextSensorUpdateTime += deltaTime;
 
-				// Update the timestamp and delta-time
-				_lastSensorFrame.deltaTime = deltaTime;
-				_lastSensorFrame.timestamp = _nextSensorUpdateTime;
-				
-				// Calculate rotation, which is used by all sensors.
-				if (_simulateMovement)
+				// Check if sensors need to be updated
+				bool anySensorsEnabled = false;
+				for (int i = 0; i < WearableConstants.SensorIds.Length; i++)
 				{
-					if (_rotationType == RotationType.Euler)
+					if (_sensorStatus[WearableConstants.SensorIds[i]])
 					{
-						_rotation = Quaternion.Euler(_eulerSpinRate * _lastSensorFrame.timestamp);
-					}
-					else if (_rotationType == RotationType.AxisAngle)
-					{
-						_rotation = Quaternion.AngleAxis(
-							_axisAngleSpinRate.w * _lastSensorFrame.timestamp, 
-							new Vector3(_axisAngleSpinRate.x, _axisAngleSpinRate.y, _axisAngleSpinRate.z).normalized);
+						anySensorsEnabled = true;
+						break;
 					}
 				}
-				else
+
+				// Emit a gesture if needed
+				bool gestureEmitted = UpdateGestureData();
+
+				if (anySensorsEnabled || gestureEmitted)
 				{
-					_rotation = Quaternion.identity;
+					// Update the timestamp and delta-time
+					_lastSensorFrame.deltaTime = deltaTime;
+					_lastSensorFrame.timestamp = _nextSensorUpdateTime;
 				}
-					
 				
-				// Update all active sensors
-				if (_sensorStatus[SensorId.Accelerometer])
+				if (anySensorsEnabled)
 				{
-					UpdateAccelerometerData();
+					if (_simulateMovement)
+					{
+						// Calculate rotation, which is used by all sensors.
+						if (_rotationType == RotationType.Euler)
+						{
+							_rotation = Quaternion.Euler(_eulerSpinRate * _lastSensorFrame.timestamp);
+						}
+						else if (_rotationType == RotationType.AxisAngle)
+						{
+							_rotation = Quaternion.AngleAxis(
+								_axisAngleSpinRate.w * _lastSensorFrame.timestamp,
+								new Vector3(_axisAngleSpinRate.x, _axisAngleSpinRate.y, _axisAngleSpinRate.z).normalized);
+						}
+					}
+					else
+					{
+						_rotation = Quaternion.identity;
+					}
+
+					// Update all active sensors, even if motion is not simulated
+					if (_sensorStatus[SensorId.Accelerometer])
+					{
+						UpdateAccelerometerData();
+					}
+
+					if (_sensorStatus[SensorId.Gyroscope])
+					{
+						UpdateGyroscopeData();
+					}
+
+					if (_sensorStatus[SensorId.Rotation])
+					{
+						UpdateRotationSensorData();
+					}
 				}
 
-				if (_sensorStatus[SensorId.Gyroscope])
+				// Emit the frame if needed
+				if (anySensorsEnabled || gestureEmitted)
 				{
-					UpdateGyroscopeData();
+					_currentSensorFrames.Add(_lastSensorFrame);
+					OnSensorsOrGestureUpdated(_lastSensorFrame);
 				}
-
-				if (_sensorStatus[SensorId.Rotation] || _sensorStatus[SensorId.GameRotation])
-				{
-					UpdateRotationSensorData();
-				}
-
-				UpdateGestureData();
-
-				// Emit the frame
-				_currentSensorFrames.Add(_lastSensorFrame);
-				OnSensorsUpdated(_lastSensorFrame);
 			}
 		}
 
@@ -407,9 +474,11 @@ namespace Bose.Wearable
 		private RotationType _rotationType;
 
 		private Quaternion _rotation;
-
+		private readonly Queue<GestureId> _pendingGestures;
+		
 		private readonly Dictionary<SensorId, bool> _sensorStatus;
 		private SensorUpdateInterval _sensorUpdateInterval;
+		private RotationSensorSource _rotationSource;
 		private float _nextSensorUpdateTime;
 		
 		private readonly Dictionary<GestureId, bool> _gestureStatus;
@@ -442,10 +511,12 @@ namespace Bose.Wearable
 			_sensorStatus = new Dictionary<SensorId, bool>();
 			_sensorUpdateInterval = WearableConstants.DefaultUpdateInterval;
 
+			_rotationSource = WearableConstants.DefaultRotationSource;
+
+			
 			_sensorStatus.Add(SensorId.Accelerometer, false);
 			_sensorStatus.Add(SensorId.Gyroscope, false);
 			_sensorStatus.Add(SensorId.Rotation, false);
-			_sensorStatus.Add(SensorId.GameRotation, false);
 
 			// All gestures start disabled.
 			_gestureStatus = new Dictionary<GestureId, bool>();
@@ -458,6 +529,8 @@ namespace Bose.Wearable
 
 				_gestureStatus.Add(WearableConstants.GestureIds[i], false);
 			}
+			
+			_pendingGestures = new Queue<GestureId>();
 			
 			_nextSensorUpdateTime = 0.0f;
 			_rotation = Quaternion.identity;
@@ -501,16 +574,37 @@ namespace Bose.Wearable
 			// This is already calculated for us since the other sensors need it too.
 			_lastSensorFrame.rotation.value = _rotation;
 			_lastSensorFrame.rotation.measurementUncertainty = 0.0f;
-			_lastSensorFrame.gameRotation = _lastSensorFrame.rotation;
 		}
 
 		/// <summary>
 		/// Simulate some gesture data.
 		/// </summary>
-		private void UpdateGestureData()
+		/// <returns>True if a gesture was generated, else false</returns>
+		private bool UpdateGestureData()
 		{
-			// NOTE: Gestures are not currently implemented within the WearableDebugProvider.
+			if (_pendingGestures.Count > 0)
+			{
+				GestureId gesture = _pendingGestures.Dequeue();
+				if (_gestureStatus[gesture])
+				{
+					// If the gesture is enabled, go ahead and trigger it.
+					if (_verbose)
+					{
+						Debug.LogFormat(WearableConstants.DebugProviderTriggerGesture, Enum.GetName(typeof(GestureId), gesture));
+					}
+					
+					_lastSensorFrame.gestureId = gesture;
+					return true;
+				}
+				else
+				{
+					// Otherwise, warn, and drop the gesture from the queue.
+					Debug.LogWarning(WearableConstants.DebugProviderTriggerDisabledGestureWarning);
+				}
+			}
+			
 			_lastSensorFrame.gestureId = GestureId.None;
+			return false;
 		}
 		
 		#endregion

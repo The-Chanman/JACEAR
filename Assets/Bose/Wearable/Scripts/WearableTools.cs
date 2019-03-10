@@ -32,7 +32,7 @@ namespace Bose.Wearable
 					throw new ArgumentOutOfRangeException();
 			}
 		}
-		
+
 				/// <summary>
 		/// Get the number of milliseconds between samples for a given <see cref="SensorUpdateInterval"/>.
 		/// </summary>
@@ -51,6 +51,9 @@ namespace Bose.Wearable
 				case ProductId.BoseFrames:
 					productType = ProductType.BoseFrames;
 					break;
+				case ProductId.QuietComfort35Two:
+					productType = ProductType.QuietComfort35Two;
+					break;
 			}
 
 			return productType;
@@ -64,6 +67,9 @@ namespace Bose.Wearable
 				case ProductType.BoseFrames:
 					variantType = GetBoseFramesVariantType(variantId);
 					break;
+				case ProductType.QuietComfort35Two:
+					variantType = GetQuietComfort35TwoVariantType(variantId);
+					break;
 			}
 
 			return variantType;
@@ -72,16 +78,36 @@ namespace Bose.Wearable
 		private static VariantType GetBoseFramesVariantType(byte variantId)
 		{
 			var variantType = VariantType.Unknown;
-			var boseFramesVariant = (BoseFramesVariantID)variantId;
-			if (Enum.IsDefined(typeof(BoseFramesVariantID), boseFramesVariant))
+			var boseFramesVariant = (BoseFramesVariantId)variantId;
+			if (Enum.IsDefined(typeof(BoseFramesVariantId), boseFramesVariant))
 			{
 				switch (boseFramesVariant)
 				{
-					case BoseFramesVariantID.BoseFramesAlto:
+					case BoseFramesVariantId.BoseFramesAlto:
 						variantType = VariantType.BoseFramesAlto;
 						break;
-					case BoseFramesVariantID.BoseFramesRondo:
+					case BoseFramesVariantId.BoseFramesRondo:
 						variantType = VariantType.BoseFramesRondo;
+						break;
+				}
+			}
+
+			return variantType;
+		}
+
+		private static VariantType GetQuietComfort35TwoVariantType(byte variantId)
+		{
+			var variantType = VariantType.Unknown;
+			var quietComfort35TwoVariant = (QuietComfort35TwoVariantId)variantId;
+			if (Enum.IsDefined(typeof(QuietComfort35TwoVariantId), quietComfort35TwoVariant))
+			{
+				switch (quietComfort35TwoVariant)
+				{
+					case QuietComfort35TwoVariantId.Black:
+						variantType = VariantType.QuietComfort35TwoBlack;
+						break;
+					case QuietComfort35TwoVariantId.Silver:
+						variantType = VariantType.QuietComfort35TwoSilver;
 						break;
 				}
 			}

@@ -59,10 +59,19 @@ MonoBehaviour:
   - productType: 1
     displayModel: {fileID: 1306269764262272, guid: 7970956956f4a974ab4e2d0c2bb4091e,
       type: 2}
+  - productType: 2
+    displayModel: {fileID: 1150606417567968, guid: 73f8b663bcb9ac4459039f44cd5a354e,
+      type: 2}
   _variantWearableModels:
   - variantType: 1
     displayModel: {fileID: 1306269764262272, guid: 7970956956f4a974ab4e2d0c2bb4091e,
       type: 2}
   - variantType: 2
     displayModel: {fileID: 1171680635532160, guid: 941f585fefa51484b844bed554ae275f,
+      type: 2}
+  - variantType: 3
+    displayModel: {fileID: 1150606417567968, guid: 73f8b663bcb9ac4459039f44cd5a354e,
+      type: 2}
+  - variantType: 4
+    displayModel: {fileID: 1703635908094110, guid: 78eeb9c13fb497c4e803cc33ade699f7,
       type: 2}

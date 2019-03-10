@@ -386,11 +386,11 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 224735255644499794}
+  - component: {fileID: 114743538202963226}
   - component: {fileID: 223237269086590074}
   - component: {fileID: 114664078566486216}
   - component: {fileID: 114624366443631992}
   - component: {fileID: 225417378811032514}
-  - component: {fileID: 114743538202963226}
   m_Layer: 0
   m_Name: WearableConnectUIPanel
   m_TagString: Untagged

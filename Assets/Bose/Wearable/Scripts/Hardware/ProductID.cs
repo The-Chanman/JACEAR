@@ -9,6 +9,7 @@ namespace Bose.Wearable
 	public enum ProductId : ushort
 	{
 		Undefined = 0,
-		BoseFrames = 0x402C
+		BoseFrames = 0x402C,
+		QuietComfort35Two = 0x4020
 	}
 }

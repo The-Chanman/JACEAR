@@ -10,7 +10,8 @@ namespace Bose.Wearable
 	public struct Device : IEquatable<Device>
 	{
 		/// <summary>
-		/// The Unique Identifier for this device.
+		/// The Unique Identifier for this device. On Android this will be the device's address, since 
+		/// we cannot get the uuid of the device in some circumstances.
 		/// </summary>
 		public string uid;
 

@@ -51,8 +51,24 @@ namespace Bose.Wearable
 			get { return _simulateHardwareDevices; }
 		}
 
-		[Tooltip(WearableConstants.SimulateHardwareDeviceTooltip)]
-		[SerializeField]
+		#if UNITY_ANDROID && !UNITY_EDITOR
+		private BoseWearableAndroid AndroidPlugin
+		{
+			get
+			{
+				if (_androidPlugin == null)
+				{
+					_androidPlugin = new BoseWearableAndroid();
+				}
+
+				return _androidPlugin;
+			}
+		}
+
+		private BoseWearableAndroid _androidPlugin;
+		#endif
+
+		[Tooltip(WearableConstants.SimulateHardwareDeviceTooltip), SerializeField]
 		private bool _simulateHardwareDevices;
 
 		#endregion
@@ -73,6 +89,11 @@ namespace Bose.Wearable
 			_deviceSearchCallback = onDevicesUpdated;
 			_performDeviceSearch = true;
 			_nextDeviceSearchTime = Time.unscaledTime + WearableConstants.DeviceSearchUpdateIntervalInSeconds;
+			#elif UNITY_ANDROID && !UNITY_EDITOR
+			AndroidPlugin.Scan(RSSIFilterThreshold);
+			_deviceSearchCallback = onDevicesUpdated;
+			_performDeviceSearch = true;
+			_nextDeviceSearchTime = Time.unscaledTime + WearableConstants.DeviceSearchUpdateIntervalInSeconds;
 			#else
 			onDevicesUpdated(WearableConstants.EmptyDeviceList);
 			#endif
@@ -88,6 +109,8 @@ namespace Bose.Wearable
 
 				#if UNITY_IOS && !UNITY_EDITOR
 				WearableStopDeviceSearch();
+				#elif UNITY_ANDROID && !UNITY_EDITOR
+				AndroidPlugin.StopScan();
 				#endif
 			}
 		}
@@ -104,6 +127,8 @@ namespace Bose.Wearable
 
 			#if UNITY_IOS && !UNITY_EDITOR
 			WearableOpenSession(_deviceToConnect.uid);
+			#elif UNITY_ANDROID && !UNITY_EDITOR
+			AndroidPlugin.StartSession(_deviceToConnect.uid);
 			#endif
 
 			OnDeviceConnecting(_deviceToConnect);
@@ -135,6 +160,8 @@ namespace Bose.Wearable
 
 			#if UNITY_IOS && !UNITY_EDITOR
 			WearableCloseSession();
+			#elif UNITY_ANDROID && !UNITY_EDITOR
+			AndroidPlugin.CloseSession();
 			#endif
 		}
 
@@ -157,9 +184,8 @@ namespace Bose.Wearable
 			// Until a method is added for this, a suitable workaround is to call EnableSensor on a sensor that is
 			// already enabled. If no sensors are enabled, the cached value will of _sensorUpdateInterval will be
 			// used the next time a sensor is enabled.
-
-			#if UNITY_IOS && !UNITY_EDITOR
-			var enumerator = _sensorStatus.GetEnumerator();
+			#if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
+			Dictionary<SensorId, bool>.Enumerator enumerator = _sensorStatus.GetEnumerator();
 			try
 			{
 				while (enumerator.MoveNext())
@@ -167,7 +193,11 @@ namespace Bose.Wearable
 					KeyValuePair<SensorId, bool> element = enumerator.Current;
 					if (element.Value)
 					{
+						#if UNITY_IOS
 						WearableEnableSensor((int) element.Key, (int) _sensorUpdateInterval);
+						#elif UNITY_ANDROID
+						AndroidPlugin.EnableSensor(element.Key, (int) _sensorUpdateInterval);
+						#endif
 
 						// Only one call is needed since the interval is global
 						break;
@@ -178,6 +208,28 @@ namespace Bose.Wearable
 			{
 				enumerator.Dispose();
 			}
+			#endif
+		}
+
+		internal override RotationSensorSource GetRotationSource()
+		{
+			return _rotationSource;
+		}
+
+		internal override void SetRotationSource(RotationSensorSource source)
+		{
+			if (_connectedDevice == null)
+			{
+				Debug.LogWarning(WearableConstants.SetRotationSourceWithoutDeviceWarning);
+				return;
+			}
+
+			_rotationSource = source;
+
+			#if UNITY_IOS && !UNITY_EDITOR
+			WearableSetRotationSource((int)source);
+			#elif UNITY_ANDROID && !UNITY_EDITOR
+			AndroidPlugin.SetRotationSource(source);
 			#endif
 		}
 
@@ -206,14 +258,13 @@ namespace Bose.Wearable
 					WearableListenForGyroscopeData(true);
 					break;
 				case SensorId.Rotation:
-					WearableListenForRotationData(true, _rotationMode);
-					break;
-				case SensorId.GameRotation:
-					WearableListenForRotationData(true, _rotationMode);
+					WearableListenForRotationData(true);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
+			#elif UNITY_ANDROID && !UNITY_EDITOR
+			AndroidPlugin.EnableSensor(sensorId, (int) _sensorUpdateInterval);
 			#endif
 
 			_sensorStatus[sensorId] = true;
@@ -237,14 +288,13 @@ namespace Bose.Wearable
 					WearableListenForGyroscopeData(false);
 					break;
 				case SensorId.Rotation:
-					WearableListenForRotationData(false, _rotationMode);
-					break;
-				case SensorId.GameRotation:
-					WearableListenForRotationData(false, _rotationMode);
+					WearableListenForRotationData(false);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
+			#elif UNITY_ANDROID && !UNITY_EDITOR
+			AndroidPlugin.DisableSensor(sensorId);
 			#endif
 
 			_sensorStatus[sensorId] = false;
@@ -273,16 +323,7 @@ namespace Bose.Wearable
 			WearableEnableGesture((int)gestureId);
 			WearableListenForGestureData(true);
 			#elif UNITY_ANDROID && !UNITY_EDITOR
-			// @TODO: The Android API appears to still be evolving here.  If they keep adding separate
-			// calls for each gesture we should turn this into a switch statement.
-			if (gestureId == GestureId.DoubleTap)
-			{
-				Plugin.EnableDoubleTap();
-			}
-			else
-			{
-				Debug.LogFormat(WearableConstants.EnableGestureNotSupportedWarning, Enum.GetName(typeof(GestureId), gestureId));
-			}
+			AndroidPlugin.EnableGesture(gestureId);
 			#endif
 
 			_gestureStatus[gestureId] = true;
@@ -315,22 +356,13 @@ namespace Bose.Wearable
 				WearableListenForGestureData(false);
 			}
 			#elif UNITY_ANDROID && !UNITY_EDITOR
-			// @TODO: The Android API appears to still be evolving here.  If they keep adding separate
-			// calls for each gesture we should turn this into a switch statement.
-			if (gestureId == GestureId.DoubleTap)
-			{
-				Plugin.DisableDoubleTap();
-			}
-			else
-			{
-				Debug.LogFormat(WearableConstants.DisableGestureNotSupportedWarning, Enum.GetName(typeof(GestureId), gestureId));
-			}
+			AndroidPlugin.EnableGesture(gestureId);
 			#endif
 		}
 
 		internal override bool GetGestureEnabled(GestureId gestureId)
 		{
-			return (_connectedDevice != null) && _gestureStatus[gestureId];
+			return _connectedDevice != null && _gestureStatus[gestureId];
 		}
 
 		internal override void OnInitializeProvider()
@@ -342,6 +374,8 @@ namespace Bose.Wearable
 
 			#if UNITY_IOS && !UNITY_EDITOR
 			WearableInitialize(_simulateHardwareDevices);
+			#elif UNITY_ANDROID && !UNITY_EDITOR
+			AndroidPlugin.Init(_simulateHardwareDevices);
 			#else
 			Debug.LogError(WearableConstants.UnsupportedPlatformError);
 			#endif
@@ -441,6 +475,7 @@ namespace Bose.Wearable
 		// Sensor status
 		private readonly Dictionary<SensorId, bool> _sensorStatus;
 		private SensorUpdateInterval _sensorUpdateInterval;
+		private RotationSensorSource _rotationSource;
 
 		// Gestures
 		private readonly Dictionary<GestureId, bool> _gestureStatus;
@@ -467,7 +502,7 @@ namespace Bose.Wearable
 
 		internal WearableDeviceProvider()
 		{
-			_rotationMode = RotationMode.NineDof;
+			_rotationSource = WearableConstants.DefaultRotationSource;
 
 			_sensorStatus = new Dictionary<SensorId, bool>();
 			_sensorUpdateInterval = WearableConstants.DefaultUpdateInterval;
@@ -475,7 +510,6 @@ namespace Bose.Wearable
 			_sensorStatus.Add(SensorId.Accelerometer, false);
 			_sensorStatus.Add(SensorId.Gyroscope, false);
 			_sensorStatus.Add(SensorId.Rotation, false);
-			_sensorStatus.Add(SensorId.GameRotation, false);
 
 			// All gestures start disabled.
 			_gestureStatus = new Dictionary<GestureId, bool>();
@@ -515,15 +549,91 @@ namespace Bose.Wearable
 							acceleration = frame->acceleration,
 							angularVelocity = frame->angularVelocity,
 							rotation = frame->rotation,
-							gameRotation = frame->gameRotation,
 							gestureId = frame->gestureId
 						});
 					}
 
 					_lastSensorFrame = _currentSensorFrames[_currentSensorFrames.Count - 1];
 
-					OnSensorsUpdated(_lastSensorFrame);
+					OnSensorsOrGestureUpdated(_lastSensorFrame);
 				}
+			}
+			#elif UNITY_ANDROID && !UNITY_EDITOR
+			const string GetLengthMethod = "length";
+			const string GetFrameAtIndexMethod = "getFrameAtIndex";
+			const string GetAccelerationMethod = "getAcceleration";
+			const string GetAngularVelocityMethod = "getAngularVelocity";
+			const string GetRotationMethod = "getRotation";
+
+			const string GetWMethod = "getW";
+			const string GetXMethod = "getX";
+			const string GetYMethod = "getY";
+			const string GetZMethod = "getZ";
+			const string GetAccuracyMethod = "getAccuracyValue";
+			const string GetUncertaintyMethod = "getAccuracy";
+
+			const string GetTimestampMethod = "getTimestamp";
+			const string GetDeltaTimeMethod = "getDeltaTime";
+
+			const string GetInput = "getInput";
+
+			AndroidJavaObject androidObj = AndroidPlugin.GetFrames();
+			int count = androidObj.Call<int>(GetLengthMethod);
+
+			if (count > 0)
+			{
+				for (int i = 0; i < count; i++)
+				{
+					AndroidJavaObject frame = androidObj.Call<AndroidJavaObject>(GetFrameAtIndexMethod, i);
+
+					AndroidJavaObject accelValue = frame.Call<AndroidJavaObject>(GetAccelerationMethod);
+					AndroidJavaObject angVelValue = frame.Call<AndroidJavaObject>(GetAngularVelocityMethod);
+					AndroidJavaObject rotValue = frame.Call<AndroidJavaObject>(GetRotationMethod);
+
+					byte gesture = frame.Call<byte>(GetInput);
+
+					SensorVector3 accel = new SensorVector3();
+					SensorVector3 gyro = new SensorVector3();
+					SensorQuaternion rot = new SensorQuaternion();
+
+					accel.value = new Vector3(
+						(float) accelValue.Call<double>(GetXMethod),
+						(float) accelValue.Call<double>(GetYMethod), 
+						(float) accelValue.Call<double>(GetZMethod)
+					);
+					accel.accuracy = (SensorAccuracy) accelValue.Call<byte>(GetAccuracyMethod);
+
+					gyro.value = new Vector3(
+						(float) angVelValue.Call<double>(GetXMethod),
+						(float) angVelValue.Call<double>(GetYMethod),
+						(float) angVelValue.Call<double>(GetZMethod)
+					);
+					gyro.accuracy = (SensorAccuracy) angVelValue.Call<byte>(GetAccuracyMethod);
+
+					rot.value = new Quaternion(
+						(float) rotValue.Call<double>(GetXMethod),
+						(float) rotValue.Call<double>(GetYMethod),
+						(float) rotValue.Call<double>(GetZMethod),
+						(float) rotValue.Call<double>(GetWMethod)
+					);
+					rot.measurementUncertainty = (float) rotValue.Call<double>(GetUncertaintyMethod);
+
+					_currentSensorFrames.Add(
+						new SensorFrame
+						{
+							timestamp = WearableConstants.Sensor2UnityTime * frame.Call<int>(GetTimestampMethod),
+							deltaTime = WearableConstants.Sensor2UnityTime * frame.Call<int>(GetDeltaTimeMethod),
+							acceleration = accel,
+							angularVelocity = gyro,
+							rotation = rot,
+							gestureId = (GestureId) gesture
+						}
+					);
+				}
+
+				_lastSensorFrame = _currentSensorFrames[_currentSensorFrames.Count - 1];
+
+				OnSensorsOrGestureUpdated(_lastSensorFrame);
 			}
 			#endif
 		}
@@ -552,6 +662,8 @@ namespace Bose.Wearable
 					}
 				}
 			}
+			#elif UNITY_ANDROID && !UNITY_EDITOR
+			devices = AndroidPlugin.GetDevices();
 			#endif
 
 			return devices;
@@ -563,9 +675,16 @@ namespace Bose.Wearable
 		/// </summary>
 		private void PerformDeviceConnection()
 		{
-			#if UNITY_IOS && !UNITY_EDITOR
+			#if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
 			string errorMessage = string.Empty;
+
+			#if UNITY_IOS
 			SessionStatus sessionStatus = (SessionStatus)WearableGetSessionStatus(ref errorMessage);
+			#elif UNITY_ANDROID
+			SessionStatus sessionStatus = AndroidPlugin.GetSessionStatus();
+			errorMessage = AndroidPlugin.GetSessionStatusError();
+			#endif
+
 			switch (sessionStatus)
 			{
 				// Receiving a session status of Closed while attempting to open a session indicates an error occured.
@@ -596,9 +715,13 @@ namespace Bose.Wearable
 					Debug.Log(WearableConstants.DeviceConnectionOpened);
 
 					// ProductId and VariantId are only accessible after a connection has been opened. Update the values for the _connectDevice.
+					#if UNITY_IOS
 					_deviceToConnect.productId = (ProductId)WearableGetDeviceProductID();
 					_deviceToConnect.variantId = (byte)WearableGetDeviceVariantID();
-
+					#elif UNITY_ANDROID
+					_deviceToConnect.productId = AndroidPlugin.GetDeviceProductId();
+					_deviceToConnect.variantId = AndroidPlugin.GetDeviceVariantId();
+					#endif
 					// Make sure productId and variantId values are defined.
 					if (!Enum.IsDefined(typeof(ProductId), _deviceToConnect.productId))
 					{
@@ -652,9 +775,16 @@ namespace Bose.Wearable
 		/// </summary>
 		private void MonitorDeviceSession()
 		{
-		#if UNITY_IOS && !UNITY_EDITOR
+			#if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
 			string errorMessage = string.Empty;
+
+			#if UNITY_IOS
 			SessionStatus sessionStatus = (SessionStatus)WearableGetSessionStatus(ref errorMessage);
+			#elif UNITY_ANDROID
+			SessionStatus sessionStatus = (SessionStatus) AndroidPlugin.GetSessionStatus();
+			#endif
+
+
 			if (sessionStatus != SessionStatus.Open)
 			{
 				if (string.IsNullOrEmpty(errorMessage))
@@ -674,13 +804,12 @@ namespace Bose.Wearable
 				_sensorStatus[SensorId.Accelerometer] = false;
 				_sensorStatus[SensorId.Gyroscope] = false;
 				_sensorStatus[SensorId.Rotation] = false;
-				_sensorStatus[SensorId.GameRotation] = false;
 
 				StopDeviceMonitor();
 
 				_connectedDevice = null;
 			}
-		#endif
+			#endif
 		}
 
 		/// <summary>
@@ -696,7 +825,8 @@ namespace Bose.Wearable
 
 		#endregion
 
-		#region Internal iOS Native Methods
+		#region Internal iOS and Android Native Methods
+
 		#if UNITY_IOS && !UNITY_EDITOR
 		/// <summary>
 		/// This struct matches the plugin bridge definition and is only used as a temporary convert from the native
@@ -725,7 +855,6 @@ namespace Bose.Wearable
 			public SensorVector3 acceleration;
 			public SensorVector3 angularVelocity;
 			public SensorQuaternion rotation;
-			public SensorQuaternion gameRotation;
 			public GestureId gestureId;
 		}
 
@@ -800,10 +929,9 @@ namespace Bose.Wearable
 		/// to determine if GameRotation or Rotation will be used.
 		/// </summary>
 		/// <param name="isEnabled"></param>
-		/// <param name="mode"></param>
 		/// <returns></returns>
 		[DllImport("__Internal")]
-		private static extern void WearableListenForRotationData(bool isEnabled, RotationMode mode);
+		private static extern void WearableListenForRotationData(bool isEnabled);
 
 		/// <summary>
 		/// Starts listening for gyroscope data. When enabled gyroscope data will be written to the
@@ -851,6 +979,20 @@ namespace Bose.Wearable
 		[DllImport("__Internal")]
 		private static extern void WearableDisableGesture(int gestureId);
 
+
+		/// <summary>
+		/// Set the sensor used by the bridge to determine the device orientation.
+		/// </summary>
+		/// <param name="source"></param>
+		[DllImport("__Internal")]
+		private static extern void WearableSetRotationSource(int source);
+
+		/// <summary>
+		/// Get the sensor used by the bridge to determine the device orientation.
+		/// </summary>
+		[DllImport("__Internal")]
+		private static extern int WearableGetRotationSource();
+
 		/// <summary>
 		/// Start listening for gesture data callbacks. If enabled, gestures will be written to the SensorFrame when detected. Only gestures
 		/// that have been activated by WearableEnableGesture(int gestureId) will be listened for. When disabled no gesture data will be
@@ -872,7 +1014,233 @@ namespace Bose.Wearable
 		[DllImport("__Internal")]
 		private static extern int WearableGetDeviceVariantID();
 
+		#elif UNITY_ANDROID && !UNITY_EDITOR
+		private class BoseWearableAndroid
+		{
+			private const string PackageName = "unity.bose.com.wearableplugin.WearablePlugin";
+
+			private const string SetRotationSourceMethod = "WearableSetRotationSource";
+			private const string GetRotationSourceMethod = "WearableGetRotationSource";
+			private const string EnableSensorMethod = "WearableEnableSensor";
+			private const string DisableSensorMethod = "WearableDisableSensor";
+			private const string EnableGestureMethod = "WearableSetGestureEnabled";
+			private AndroidJavaObject _wearablePlugin;
+
+			public void Init(bool simulated)
+			{
+				const string GetInstanceMethod = "GetInstance";
+				const string InitializeMethod = "WearableInitialize";
+
+				if (_wearablePlugin == null)
+				{
+					AndroidJavaClass wearablePluginClass = new AndroidJavaClass(PackageName);
+					_wearablePlugin = wearablePluginClass.CallStatic<AndroidJavaObject>(GetInstanceMethod);
+				}
+
+				_wearablePlugin.Call(InitializeMethod, GetContext(), simulated);
+			}
+
+			public void Scan(int threshold)
+			{
+				const string StartSearchMethod = "WearableStartDeviceSearch";
+
+				if (_wearablePlugin != null)
+				{
+					_wearablePlugin.Call(StartSearchMethod, threshold);
+				}
+			}
+
+			public Device[] GetDevices()
+			{
+				const string GetDiscoveredDevicesMethod = "WearableGetDiscoveredDevices";
+				const string GetDeviceMethod = "getDevice";
+				const string GetDeviceCountMethod = "getDeviceCount";
+				const string GetAddressMethod = "getAddress";
+				const string GetNameMethod = "getName";
+				const string GetIsConnectedMethod = "getIsConnected";
+				const string GetRssiMethod = "getRSSI";
+
+				Device[] devices = WearableConstants.EmptyDeviceList;
+
+				if (_wearablePlugin != null)
+				{
+					AndroidJavaObject deviceList = _wearablePlugin.Call<AndroidJavaObject>(GetDiscoveredDevicesMethod);
+					int deviceCount = deviceList.Call<int>(GetDeviceCountMethod);
+
+					devices = new Device[deviceCount];
+
+					for (int i = 0; i < deviceCount; i++)
+					{
+						AndroidJavaObject deviceObj = deviceList.Call<AndroidJavaObject>(GetDeviceMethod, i);
+
+						Device device = new Device
+						{
+							uid = deviceObj.Call<string>(GetAddressMethod),
+							name = deviceObj.Call<string>(GetNameMethod),
+							isConnected = deviceObj.Call<bool>(GetIsConnectedMethod),
+							rssi = deviceObj.Call<int>(GetRssiMethod)
+						};
+
+						devices[i] = device;
+					}
+				}
+
+				return devices;
+			}
+
+			public void StopScan()
+			{
+				const string StopSearchMethod = "WearableStopDeviceSearch";
+
+				if (_wearablePlugin != null)
+				{
+					_wearablePlugin.Call(StopSearchMethod);
+				}
+			}
+
+			public void StartSession(string deviceAddress)
+			{
+				const string OpenSessionMethod = "WearableOpenSession";
+
+				if (_wearablePlugin != null)
+				{
+					_wearablePlugin.Call(OpenSessionMethod, deviceAddress);
+				}
+			}
+
+			public SessionStatus GetSessionStatus()
+			{
+				const string GetStatusMethod = "WearableGetSessionStatus";
+				if (_wearablePlugin != null)
+				{
+					return (SessionStatus) _wearablePlugin.Call<int>(GetStatusMethod);
+				}
+
+				return (SessionStatus) 0;
+			}
+
+			public string GetSessionStatusError()
+			{
+				const string GetLastErrorMethod = "WearableGetLastSessionError";
+
+				if (_wearablePlugin != null)
+				{
+					return _wearablePlugin.Call<string>(GetLastErrorMethod);
+				}
+
+				return null;
+			}
+
+			public void CloseSession()
+			{
+				const string CloseSessionMethod = "WearableCloseSession";
+				if (_wearablePlugin != null)
+				{
+					_wearablePlugin.Call<bool>(CloseSessionMethod);
+				}
+			}
+
+			public AndroidJavaObject GetFrames()
+			{
+				const string GetFramesMethod = "WearableGetSensorFrames";
+
+				if (_wearablePlugin != null)
+				{
+					return _wearablePlugin.Call<AndroidJavaObject>(GetFramesMethod);
+				}
+
+				return null;
+			}
+
+			public void SetRotationSource(RotationSensorSource source)
+			{
+				if (_wearablePlugin != null)
+				{
+					_wearablePlugin.Call(SetRotationSourceMethod, (int) source);
+				}
+			}
+
+			public RotationSensorSource GetRotationSource()
+			{
+				if (_wearablePlugin != null)
+				{
+					return (RotationSensorSource)_wearablePlugin.Call<int>(GetRotationSourceMethod);
+				}
+
+				return WearableConstants.DefaultRotationSource;
+			}
+
+			public void EnableSensor(SensorId sensor, int rate)
+			{
+				if (_wearablePlugin != null)
+				{
+					_wearablePlugin.Call(EnableSensorMethod, (int) sensor, rate);
+				}
+			}
+
+			public void DisableSensor(SensorId sensor)
+			{
+				if (_wearablePlugin != null)
+				{
+					_wearablePlugin.Call(DisableSensorMethod, (int) sensor);
+				}
+			}
+
+			public void EnableGesture(GestureId gestureId)
+			{
+				if (_wearablePlugin != null)
+				{
+					_wearablePlugin.Call(EnableGestureMethod, (byte)gestureId, true);
+				}
+			}
+
+			public void DisableGesture(GestureId gestureId)
+			{
+				if (_wearablePlugin != null)
+				{
+					_wearablePlugin.Call(EnableGestureMethod, (byte)gestureId, true);
+				}
+			}
+
+			public ProductId GetDeviceProductId()
+			{
+				const string GetProductIdMethod = "WearableGetDeviceProductID";
+
+				ProductId productId = 0;
+				if (_wearablePlugin != null)
+				{
+					productId = (ProductId) _wearablePlugin.Call<int>(GetProductIdMethod);
+				}
+
+				return productId;
+			}
+
+			public byte GetDeviceVariantId()
+			{
+				const string GetVariantIdMethod = "WearableGetDeviceVariantID";
+
+				byte variantId = 0;
+				if (_wearablePlugin != null)
+				{
+					variantId = (byte) _wearablePlugin.Call<int>(GetVariantIdMethod);
+				}
+
+				return variantId;
+			}
+
+			private static AndroidJavaObject GetContext()
+			{
+				const string UnityPlayerClass = "com.unity3d.player.UnityPlayer";
+				const string CurrentActivityMethod = "currentActivity";
+				const string GetAppContextMethod = "getApplicationContext";
+
+				AndroidJavaClass unityPlayer = new AndroidJavaClass(UnityPlayerClass);
+				AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>(CurrentActivityMethod);
+				return activity.Call<AndroidJavaObject>(GetAppContextMethod);
+			}
+		}
 		#endif
+
 		#endregion
 	}
 }

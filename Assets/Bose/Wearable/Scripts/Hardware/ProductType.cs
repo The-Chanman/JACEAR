@@ -9,6 +9,7 @@ namespace Bose.Wearable
 	public enum ProductType
 	{
 		Unknown = 0,
-		BoseFrames = 1
+		BoseFrames = 1,
+		QuietComfort35Two = 2
 	}
 }

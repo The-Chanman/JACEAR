@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -24,13 +25,15 @@ namespace Bose.Wearable.Editor
 		private const string MainMenuSceneGuid = "814d265ed5a714b2f8a496b0e00010e1";
 		private const string BasicDemoSceneGuid = "e822a72393d35429f941bfee942e76f4";
 		private const string AdvancedDemoSceneGuid = "422b6c809820b4a78b2c60a058c8a7b4";
+		private const string GestureDemoSceneGuid = "6cb706a67df9fd948a79d1d93f05bef2";
 
 		private static readonly string[] WearableDemoSceneGuids =
 		{
 			RootSceneGuid,
 			MainMenuSceneGuid,
 			BasicDemoSceneGuid,
-			AdvancedDemoSceneGuid
+			AdvancedDemoSceneGuid,
+			GestureDemoSceneGuid
 		};
 
 		// Proxy Server
@@ -41,7 +44,6 @@ namespace Bose.Wearable.Editor
 		private const string ProxyServerSceneGuid = "be6d1a5a9c2994033954c8265229c4e8";
 
 		// Build
-		private const string SwitchingPlatformMessage = "Switching to the {0} platform, please try again in a moment.";
 		private const string CannotBuildErrorMessage = "[Bose Wearable] Cannot build the {0} for {1} as component " +
 		                                               "support for that platform is not installed. Please " +
 		                                               "install this component to continue, stopping build...";
@@ -49,6 +51,8 @@ namespace Bose.Wearable.Editor
 		                                                           "the {0}, stopping build";
 		private const string CannotFindAppIcon = "[Bose Wearable] Could not find the application icon for the Bose Wearable " +
 		                                         "example content.";
+		private const string BuildScenesCouldNotBeFound = "[Bose Wearable] Scenes could not be found for {0}, " +
+		                                                  "stopping build..";
 		private const string BuildSucceededMessage = "[Bose Wearable] {0} Build Succeeded!";
 		private const string BuildFailedMessage = "[Bose Wearable] {0} Build Failed! {1}";
 
@@ -58,65 +62,21 @@ namespace Bose.Wearable.Editor
 		private const string BuildLocationPreferenceKey = "bose_wearable_pref_key";
 
 		// Folder Picker
-		private const string FolderPickerTitle = "Build Location";
+		private const string FolderPickerTitle = "Build Location for {0}";
 
-		// Menu Items
-		private const string BuildProxyServerMenuItem = "Tools/Bose Wearable/Build Proxy Server";
-		private const string BuildWearableDemoMenuItem = "Tools/Bose Wearable/Build Wearable Demo";
+		// Unity Cloud Build
+		private const string BuildScenesSetMessage = "[Bose Wearable] Build Scenes Set for {0}.";
 
-		[MenuItem(BuildProxyServerMenuItem)]
-		private static void BuildProxyServer()
-		{
-			BuildProxyServer(EditorUserBuildSettings.activeBuildTarget);
-		}
-
-		[MenuItem(BuildProxyServerMenuItem, validate = true)]
-		private static bool IsSupportedPlatformForProxyServer()
-		{
-			return EditorUserBuildSettings.activeBuildTarget == BuildTarget.iOS;
-		}
-
-		[MenuItem(BuildWearableDemoMenuItem)]
-		private static void BuildWearableDemo()
-		{
-			BuildWearableDemo(EditorUserBuildSettings.activeBuildTarget);
-		}
-
-		[MenuItem(BuildWearableDemoMenuItem, validate = true)]
-		private static bool IsSupportedPlatformForWearableDemo()
-		{
-			return EditorUserBuildSettings.activeBuildTarget == BuildTarget.iOS;
-		}
-
-		/// <summary>
-		/// Builds the proxy server for the specified <see cref="BuildTarget"/> <paramref name="buildTarget"/>
-		/// </summary>
-		/// <param name="buildTarget"></param>
-		private static void BuildProxyServer(BuildTarget buildTarget)
+		internal static void BuildProxyServer()
 		{
 			// Check for player support
-			if (!CanBuildTarget(buildTarget))
+			if (!CanBuildTarget(EditorUserBuildSettings.activeBuildTarget))
 			{
-				Debug.LogErrorFormat(CannotBuildErrorMessage, ProxyServerProductName, buildTarget);
+				Debug.LogErrorFormat(CannotBuildErrorMessage, ProxyServerProductName, EditorUserBuildSettings.activeBuildTarget);
 				return;
 			}
 
-			var buildTargetGroup = BuildPipeline.GetBuildTargetGroup(buildTarget);
-			if (EditorUserBuildSettings.activeBuildTarget != buildTarget)
-			{
-				Debug.LogFormat(SwitchingPlatformMessage, buildTarget);
-
-				EditorUserBuildSettings.SwitchActiveBuildTarget(buildTargetGroup, buildTarget);
-				return;
-			}
-
-			// Check for required scenes and other assets
-			var scenePath = AssetDatabase.GUIDToAssetPath(ProxyServerSceneGuid);
-			if (string.IsNullOrEmpty(scenePath))
-			{
-				Debug.LogErrorFormat(CannotBuildMissingSceneErrorMessage, ProxyServerProductName);
-				return;
-			}
+			var buildTargetGroup = BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget);
 
 			// Get folder path from the user for the build
 			var folderPath = GetBuildLocation(ProxyServerProductName);
@@ -132,33 +92,33 @@ namespace Bose.Wearable.Editor
 			var iconGroup = PlayerSettings.GetIconsForTargetGroup(buildTargetGroup);
 
 			// Override Player Settings for this build.
-			PlayerSettings.productName = ProxyServerProductName;
-			PlayerSettings.bundleVersion = AppVersion;
-			PlayerSettings.SetApplicationIdentifier(buildTargetGroup, ProxyServerAppIdentifier);
-			TrySetAppIcons(ProxyAppIconGuid, buildTargetGroup);
-			AssetDatabase.SaveAssets();
-
-			// Attempt to build the app
-			var buildPlayerOptions = new BuildPlayerOptions
+			EditorBuildSettingsScene[] buildScenes;
+			if (SetBuildSettingsForWearableProxy(out buildScenes))
 			{
-				scenes = new[] { scenePath },
-				locationPathName = folderPath,
-				target = buildTarget
-			};
+				var sceneAssetPaths = buildScenes.Where(x => x.enabled).Select(x => x.path).ToArray();
 
-			var buildReport = BuildPipeline.BuildPlayer(buildPlayerOptions);
+				// Attempt to build the app
+				var buildPlayerOptions = new BuildPlayerOptions
+				{
+					scenes = sceneAssetPaths,
+					locationPathName = folderPath,
+					target = EditorUserBuildSettings.activeBuildTarget
+				};
 
-			#if UNITY_2018_1_OR_NEWER
-			if (buildReport.summary.result == BuildResult.Succeeded)
-			#else
-			if (string.IsNullOrEmpty(buildReport))
-			#endif
-			{
-				Debug.LogFormat(BuildSucceededMessage, ProxyServerProductName);
-			}
-			else
-			{
-				Debug.LogFormat(BuildFailedMessage, ProxyServerProductName, buildReport);
+				var buildReport = BuildPipeline.BuildPlayer(buildPlayerOptions);
+
+				#if UNITY_2018_1_OR_NEWER
+				if (buildReport.summary.result == BuildResult.Succeeded)
+				#else
+				if (string.IsNullOrEmpty(buildReport))
+				#endif
+				{
+					Debug.LogFormat(BuildSucceededMessage, ProxyServerProductName);
+				}
+				else
+				{
+					Debug.LogFormat(BuildFailedMessage, ProxyServerProductName, buildReport);
+				}
 			}
 
 			// Reset all PlayerSetting changes back to their original values.
@@ -170,24 +130,49 @@ namespace Bose.Wearable.Editor
 		}
 
 		/// <summary>
-		/// Builds the Wearable Demo for the specified <see cref="BuildTarget"/> <paramref name="buildTarget"/>
+		/// Ensure all settings for the Wearable Proxy build are in place.
+		/// (Parameterless version for headless build systems.)
 		/// </summary>
-		/// <param name="buildTarget"></param>
-		private static void BuildWearableDemo(BuildTarget buildTarget)
+		public static void SetBuildSettingsForWearableProxy()
+		{
+			EditorBuildSettingsScene[] buildScenes;
+			SetBuildSettingsForWearableProxy(out buildScenes);
+
+			#if UNITY_CLOUD_BUILD
+			// Only in Unity Cloud Build do we want to override the native scene list
+			EditorBuildSettings.scenes = buildScenes;
+			Debug.LogFormat(BuildScenesSetMessage, ProxyServerProductName);
+			#endif
+		}
+
+		/// <summary>
+		/// Ensure all settings for the Wearable Proxy build are in place.
+		/// </summary>
+		private static bool SetBuildSettingsForWearableProxy(out EditorBuildSettingsScene[] buildScenes)
+		{
+			buildScenes = new[]
+			{
+				new EditorBuildSettingsScene(AssetDatabase.GUIDToAssetPath(ProxyServerSceneGuid), true)
+			};
+
+			var buildTargetGroup = BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget);
+
+			PlayerSettings.productName = ProxyServerProductName;
+			PlayerSettings.bundleVersion = AppVersion;
+			PlayerSettings.SetApplicationIdentifier(buildTargetGroup, ProxyServerAppIdentifier);
+			TrySetAppIcons(ProxyAppIconGuid, buildTargetGroup);
+			AssetDatabase.SaveAssets();
+
+			return buildScenes.Length > 0 &&
+			       buildScenes.All(x => !string.IsNullOrEmpty(x.path) && x.enabled);
+		}
+
+		internal static void BuildWearableDemo()
 		{
 			// Check for player support
-			if (!CanBuildTarget(buildTarget))
+			if (!CanBuildTarget(EditorUserBuildSettings.activeBuildTarget))
 			{
-				Debug.LogErrorFormat(CannotBuildErrorMessage, WearableDemoProductName, buildTarget);
-				return;
-			}
-
-			var buildTargetGroup = BuildPipeline.GetBuildTargetGroup(buildTarget);
-			if (EditorUserBuildSettings.activeBuildTarget != buildTarget)
-			{
-				Debug.LogFormat(SwitchingPlatformMessage, buildTarget);
-
-				EditorUserBuildSettings.SwitchActiveBuildTarget(buildTargetGroup, buildTarget);
+				Debug.LogErrorFormat(CannotBuildErrorMessage, WearableDemoProductName, EditorUserBuildSettings.activeBuildTarget);
 				return;
 			}
 
@@ -198,17 +183,7 @@ namespace Bose.Wearable.Editor
 				return;
 			}
 
-			// Check for required scenes and other assets
-			var sceneAssetPaths = new string[WearableDemoSceneGuids.Length];
-			for (var i = 0; i < WearableDemoSceneGuids.Length; i++)
-			{
-				sceneAssetPaths[i] = AssetDatabase.GUIDToAssetPath(WearableDemoSceneGuids[i]);
-				if (string.IsNullOrEmpty(sceneAssetPaths[i]))
-				{
-					Debug.LogErrorFormat(CannotBuildMissingSceneErrorMessage, WearableDemoProductName);
-					return;
-				}
-			}
+			var buildTargetGroup = BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget);
 
 			// Cache values for the current Player Settings
 			var originalProductName = PlayerSettings.productName;
@@ -217,32 +192,36 @@ namespace Bose.Wearable.Editor
 			var iconGroup = PlayerSettings.GetIconsForTargetGroup(buildTargetGroup);
 
 			// Override Player Settings for this build.
-			PlayerSettings.productName = WearableDemoProductName;
-			PlayerSettings.bundleVersion = AppVersion;
-			PlayerSettings.SetApplicationIdentifier(buildTargetGroup, WearableDemoAppIdentifier);
-			TrySetAppIcons(WearableDemoIconGuid, buildTargetGroup);
-			AssetDatabase.SaveAssets();
-
-			// Attempt to build the app
-			var buildPlayerOptions = new BuildPlayerOptions
+			EditorBuildSettingsScene[] buildScenes;
+			if (SetBuildSettingsForWearableDemo(out buildScenes))
 			{
-				scenes = sceneAssetPaths,
-				locationPathName = folderPath,
-				target = buildTarget
-			};
+				var sceneAssetPaths = buildScenes.Where(x => x.enabled).Select(x => x.path).ToArray();
 
-			var buildReport = BuildPipeline.BuildPlayer(buildPlayerOptions);
-			#if UNITY_2018_1_OR_NEWER
-			if (buildReport.summary.result == BuildResult.Succeeded)
-			#else
-			if (string.IsNullOrEmpty(buildReport))
-			#endif
-			{
-				Debug.LogFormat(BuildSucceededMessage, WearableDemoProductName);
+				// Attempt to build the app
+				var buildPlayerOptions = new BuildPlayerOptions
+				{
+					scenes = sceneAssetPaths,
+					locationPathName = folderPath,
+					target = EditorUserBuildSettings.activeBuildTarget
+				};
+
+				var buildReport = BuildPipeline.BuildPlayer(buildPlayerOptions);
+				#if UNITY_2018_1_OR_NEWER
+				if (buildReport.summary.result == BuildResult.Succeeded)
+				#else
+				if (string.IsNullOrEmpty(buildReport))
+				#endif
+				{
+					Debug.LogFormat(BuildSucceededMessage, WearableDemoProductName);
+				}
+				else
+				{
+					Debug.LogFormat(BuildFailedMessage, WearableDemoProductName, buildReport);
+				}
 			}
 			else
 			{
-				Debug.LogFormat(BuildFailedMessage, WearableDemoProductName, buildReport);
+				Debug.LogErrorFormat(BuildScenesCouldNotBeFound, WearableDemoProductName);
 			}
 
 			// Reset all PlayerSetting changes back to their original values.
@@ -251,6 +230,54 @@ namespace Bose.Wearable.Editor
 			PlayerSettings.SetApplicationIdentifier(buildTargetGroup, appId);
 			PlayerSettings.SetIconsForTargetGroup(buildTargetGroup, iconGroup);
 			AssetDatabase.SaveAssets();
+		}
+
+		/// <summary>
+		/// Ensure all settings for the Wearable Proxy build are in place.
+		/// (Parameterless version for headless build systems.)
+		/// </summary>
+		public static void SetBuildSettingsForWearableDemo()
+		{
+			EditorBuildSettingsScene[] buildScenes;
+			SetBuildSettingsForWearableDemo(out buildScenes);
+
+			#if UNITY_CLOUD_BUILD
+			// Only in Unity Cloud Build do we want to override the native scene list
+			EditorBuildSettings.scenes = buildScenes;
+			Debug.LogFormat(BuildScenesSetMessage, WearableDemoProductName);
+			#endif
+		}
+
+		/// <summary>
+		/// Ensure all settings for the Wearable Proxy build are in place.
+		/// </summary>
+		private static bool SetBuildSettingsForWearableDemo(out EditorBuildSettingsScene[] buildScenes)
+		{
+			buildScenes = new EditorBuildSettingsScene[WearableDemoSceneGuids.Length];
+			for (var i = 0; i < WearableDemoSceneGuids.Length; i++)
+			{
+				buildScenes[i] = new EditorBuildSettingsScene
+				{
+					path = AssetDatabase.GUIDToAssetPath(WearableDemoSceneGuids[i]),
+					enabled = true
+				};
+
+				if (string.IsNullOrEmpty(buildScenes[i].path))
+				{
+					Debug.LogErrorFormat(CannotBuildMissingSceneErrorMessage, WearableDemoProductName);
+				}
+			}
+
+			var buildTargetGroup = BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget);
+
+			PlayerSettings.productName = WearableDemoProductName;
+			PlayerSettings.bundleVersion = AppVersion;
+			PlayerSettings.SetApplicationIdentifier(buildTargetGroup, WearableDemoAppIdentifier);
+			TrySetAppIcons(WearableDemoIconGuid, buildTargetGroup);
+			AssetDatabase.SaveAssets();
+
+			return buildScenes.Length > 0 &&
+			       buildScenes.All(x => !string.IsNullOrEmpty(x.path) && x.enabled);
 		}
 
 		/// <summary>
@@ -274,8 +301,9 @@ namespace Bose.Wearable.Editor
 			{
 				// IsBuildTargetSupported is an internal method of BuildPipeline on 2017.4 so we must
 				// use reflection in order to access it.
+				const string BuildTargetSupportedMethodName = "IsBuildTargetSupported";
 				var internalMethod = typeof(BuildPipeline).GetMethod(
-					"IsBuildTargetSupported",
+					BuildTargetSupportedMethodName,
 					BindingFlags.NonPublic | BindingFlags.Static);
 
 				var result = internalMethod.Invoke(null, new object[] { buildTargetGroup, buildTarget });
@@ -306,8 +334,31 @@ namespace Bose.Wearable.Editor
 				startFolder = EditorPrefs.GetString(BuildLocationPreferenceKey);
 			}
 
-			var panelTitle = string.Format("{0} for {1}", FolderPickerTitle, productName);
-			var folderPath = EditorUtility.SaveFolderPanel(panelTitle, startFolder, productName);
+			var panelTitle = string.Format(FolderPickerTitle, productName);
+			BuildTarget activeTarget = EditorUserBuildSettings.activeBuildTarget;
+			string folderPath;
+			switch (activeTarget)
+			{
+				case BuildTarget.Android:
+				{
+					folderPath = EditorUtility.SaveFilePanel(panelTitle, startFolder, productName, "apk");
+					break;
+				}
+
+				case BuildTarget.iOS:
+				{
+					folderPath = EditorUtility.SaveFolderPanel(panelTitle, startFolder, productName);
+					break;
+				}
+
+				default:
+				{
+					folderPath = string.Empty;
+					Debug.LogWarningFormat(WearableConstants.BuildToolsUnsupportedPlatformWarning, activeTarget);
+					break;
+				}
+			}
+
 			if (!string.IsNullOrEmpty(folderPath))
 			{
 				var directory = new DirectoryInfo(folderPath);

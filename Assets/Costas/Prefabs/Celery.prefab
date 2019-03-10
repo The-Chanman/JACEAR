@@ -25,7 +25,7 @@ GameObject:
   - component: {fileID: 114786345038917058}
   - component: {fileID: 82307129023089198}
   - component: {fileID: 54665087000058298}
-  - component: {fileID: 114265032762317776}
+  - component: {fileID: 114567672999649344}
   m_Layer: 0
   m_Name: Celery
   m_TagString: food
@@ -123,7 +123,7 @@ AudioSource:
   m_GameObject: {fileID: 1381160317509044}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 24300002, guid: 56e73898fe16e88498f9a8fe7c1ece3f,
+  OutputAudioMixerGroup: {fileID: 24300002, guid: 248799cb4acba48f7b3ee842a80f788c,
     type: 2}
   m_audioClip: {fileID: 8300000, guid: 353798db3c601f945a231f1bba6ff412, type: 3}
   m_PlayOnAwake: 1
@@ -132,7 +132,7 @@ AudioSource:
   Loop: 1
   Mute: 0
   Spatialize: 1
-  SpatializePostEffects: 0
+  SpatializePostEffects: 1
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
@@ -141,7 +141,7 @@ AudioSource:
   rolloffMode: 0
   BypassEffects: 0
   BypassListenerEffects: 0
-  BypassReverbZones: 0
+  BypassReverbZones: 1
   rolloffCustomCurve:
     serializedVersion: 2
     m_Curve:
@@ -211,7 +211,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &114265032762317776
+--- !u!114 &114567672999649344
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -219,17 +219,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1381160317509044}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e503ea6418d27594caa33b93cac1b06a, type: 3}
+  m_Script: {fileID: 11500000, guid: ef5e1719799ca4f9b9f5db81449517ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableSpatialization: 1
-  gain: 0
-  useInvSqr: 0
-  near: 1
-  far: 10
-  volumetricRadius: 0
-  reverbSend: 0
-  enableRfl: 0
+  bypassRoomEffects: 0
+  directivityAlpha: 0
+  directivitySharpness: 1
+  listenerDirectivityAlpha: 0
+  listenerDirectivitySharpness: 1
+  gainDb: 0
+  nearFieldEffectEnabled: 0
+  nearFieldEffectGain: 1
+  occlusionEnabled: 0
+  occlusionIntensity: 1
+  quality: 2
 --- !u!114 &114786345038917058
 MonoBehaviour:
   m_ObjectHideFlags: 1

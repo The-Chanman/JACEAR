@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -20,11 +21,12 @@ namespace Bose.Wearable.Editor.Inspectors
 		
 		private const string RotationTypeEuler = "Euler";
 		private const string RotationTypeAxisAngle = "AxisAngle";
-		
+
 		private const string DescriptionBox =
-			"Provides a minimal data provider that allows connection to a virtual device, and " + 
+			"Provides a minimal data provider that allows connection to a virtual device, and " +
 			"logs messages when provider methods are called. If Simulate Movement is enabled, data " +
 			"will be generated for all enabled sensors.";
+		private const string GesturesLabel = "Simulate Gesture";
 		private const string DisconnectLabel = "Simulate Device Disconnect";
 		private const string EulerRateBox =
 			"Simulates device rotation by changing each Euler angle (pitch, yaw, roll) at a fixed rate in degrees per second.";
@@ -33,11 +35,14 @@ namespace Bose.Wearable.Editor.Inspectors
 		
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{	
+			WearableDebugProvider provider = (WearableDebugProvider)fieldInfo.GetValue(property.serializedObject.targetObject);
+			
 			EditorGUI.BeginProperty(position, label, property);
 
 			EditorGUILayout.HelpBox(DescriptionBox, MessageType.None);
 			EditorGUILayout.Space();
 			
+			// Virtual device config
 			EditorGUILayout.PropertyField(property.FindPropertyRelative(DeviceNameField), WearableConstants.EmptyLayoutOptions);
 			EditorGUILayout.PropertyField(property.FindPropertyRelative(RSSIField), WearableConstants.EmptyLayoutOptions);
 			EditorGUILayout.PropertyField(property.FindPropertyRelative(UIDField), WearableConstants.EmptyLayoutOptions);
@@ -45,6 +50,7 @@ namespace Bose.Wearable.Editor.Inspectors
 			EditorGUILayout.PropertyField(property.FindPropertyRelative(VariantIdField), WearableConstants.EmptyLayoutOptions);
 			EditorGUILayout.PropertyField(property.FindPropertyRelative(VerboseField), WearableConstants.EmptyLayoutOptions);
 			
+			// Movement simulation
 			SerializedProperty simulateMovementProperty = property.FindPropertyRelative(SimulateEnabledField);
 			EditorGUILayout.PropertyField(simulateMovementProperty, WearableConstants.EmptyLayoutOptions);
 			if (simulateMovementProperty.boolValue)
@@ -73,17 +79,38 @@ namespace Bose.Wearable.Editor.Inspectors
 				}
 			}
 			
-			
-			EditorGUILayout.Space();
-			GUI.enabled = EditorApplication.isPlaying;
-			bool shouldDisconnect = GUILayout.Button(DisconnectLabel, WearableConstants.EmptyLayoutOptions);
-			GUI.enabled = true;
-			if (shouldDisconnect)
+			// Gesture triggers
+			GUILayout.Label(GesturesLabel, WearableConstants.EmptyLayoutOptions);
+			for (int i = 0; i < WearableConstants.GestureIds.Length; i++)
 			{
-				WearableDebugProvider provider = (WearableDebugProvider)fieldInfo.GetValue(property.serializedObject.targetObject);
-				provider.SimulateDisconnect();
+				GestureId gesture = WearableConstants.GestureIds[i];
+				
+				if (gesture == GestureId.None)
+				{
+					continue;
+				}
+
+				using (new EditorGUI.DisabledScope(!(provider.GetGestureEnabled(gesture) && EditorApplication.isPlaying)))
+				{
+					bool shouldTrigger = GUILayout.Button(Enum.GetName(typeof(GestureId), gesture), WearableConstants.EmptyLayoutOptions);
+					if (shouldTrigger)
+					{
+						provider.SimulateGesture(gesture);
+					}
+				}
 			}
 			
+			// Disconnect button
+			EditorGUILayout.Space();
+			using (new EditorGUI.DisabledScope(!EditorApplication.isPlaying))
+			{
+				bool shouldDisconnect = GUILayout.Button(DisconnectLabel, WearableConstants.EmptyLayoutOptions);
+				if (shouldDisconnect)
+				{
+					provider.SimulateDisconnect();
+				}
+			}
+
 			EditorGUI.EndProperty();
 		}
 	}

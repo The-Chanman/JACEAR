@@ -171,6 +171,30 @@ namespace Bose.Wearable.Proxy
 			SendTransmitBuffer();
 		}
 
+		internal override RotationSensorSource GetRotationSource()
+		{
+			// If we've never received data, there's not much we can do but warn the user, request the data, and return defaults
+			if (_rotationSource == null)
+			{
+				Debug.LogWarning(WearableConstants.ProxyProviderNoDataWarning);
+				_transmitIndex = 0;
+				WearableProxyClientProtocol.EncodeQueryRotationSource(_transmitBuffer, ref _transmitIndex);
+				SendTransmitBuffer();
+				return WearableConstants.DefaultRotationSource;
+			}
+			else
+			{
+				return _rotationSource.Value;
+			}
+		}
+
+		internal override void SetRotationSource(RotationSensorSource source)
+		{
+			_transmitIndex = 0;
+			WearableProxyClientProtocol.EncodeSetRotationSource(_transmitBuffer, ref _transmitIndex, source);
+			SendTransmitBuffer();
+		}
+
 		internal override void StartSensor(SensorId sensorId)
 		{
 			_transmitIndex = 0;
@@ -331,6 +355,7 @@ namespace Bose.Wearable.Proxy
 
 		private readonly Dictionary<SensorId, bool?> _sensorStatus;
 		private SensorUpdateInterval? _sensorUpdateInterval;
+		private RotationSensorSource? _rotationSource;
 
 		// Gestures
 		private readonly Dictionary<GestureId, bool?> _gestureStatus;
@@ -381,6 +406,7 @@ namespace Bose.Wearable.Proxy
 			_protocol.NewSensorFrame += OnNewSensorFrame;
 			_protocol.SensorUpdateIntervalValue += OnUpdateIntervalValue;
 			_protocol.PingQuery += OnPingQuery;
+			_protocol.RotationSourceValue += OnRotationSourceValue;
 
 			_portNumber = 0;
 			_hostname = string.Empty;
@@ -430,11 +456,11 @@ namespace Bose.Wearable.Proxy
 			_currentSensorFrames.Add(frame);
 			_lastSensorFrame = frame;
 
-			OnSensorsUpdated(frame);
+			OnSensorsOrGestureUpdated(frame);
 		}
 
 		/// <summary>
-		/// Called when a Connection Status packet is received. Invokes connection & disconnection events as neeced.
+		/// Called when a Connection Status packet is received. Invokes connection & disconnection events as needed.
 		/// </summary>
 		/// <param name="state"></param>
 		/// <param name="device"></param>
@@ -530,6 +556,11 @@ namespace Bose.Wearable.Proxy
 		private void OnUpdateIntervalValue(SensorUpdateInterval interval)
 		{
 			_sensorUpdateInterval = interval;
+		}
+
+		private void OnRotationSourceValue(RotationSensorSource source)
+		{
+			_rotationSource = source;
 		}
 
 		private void OnPingQuery()
@@ -641,8 +672,8 @@ namespace Bose.Wearable.Proxy
 			_sensorStatus[SensorId.Gyroscope] = null;
 			_sensorStatus[SensorId.Accelerometer] = null;
 			_sensorStatus[SensorId.Rotation] = null;
-			_sensorStatus[SensorId.GameRotation] = null;
 			_sensorUpdateInterval = null;
+			_rotationSource = null;
 
 			GestureId[] gestures = WearableConstants.GestureIds;
 			for (int i = 0; i < gestures.Length; ++i)

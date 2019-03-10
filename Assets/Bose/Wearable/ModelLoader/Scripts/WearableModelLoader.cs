@@ -8,7 +8,6 @@ namespace Bose.Wearable
 	/// <summary>
 	/// Loads and shows the most specific WearableModel configured on this instance.
 	/// </summary>
-	[AddComponentMenu("Bose/Wearable/WearableModelLoader")]
 	public class WearableModelLoader : MonoBehaviour
 	{
 		/// <summary>
@@ -209,13 +208,9 @@ namespace Bose.Wearable
 		/// <returns></returns>
 		private GameObject GetWearableModel()
 		{
-			GameObject modelGameObject;
+			var modelGameObject = _fallbackWearableGameObject;
 
-			if (_wearableControl == null || !_wearableControl.ConnectedDevice.HasValue)
-			{
-				modelGameObject = _fallbackWearableGameObject;
-			}
-			else
+			if (_wearableControl != null && _wearableControl.ConnectedDevice.HasValue)
 			{
 				var variantType = _wearableControl.ConnectedDevice.Value.GetVariantType();
 				var productType = _wearableControl.ConnectedDevice.Value.GetProductType();

@@ -8,7 +8,6 @@ namespace Bose.Wearable
 	{
 		Accelerometer = 0,
 		Gyroscope = 1,
-		Rotation = 2,
-		GameRotation = 3
+		Rotation = 2
 	}
 }
