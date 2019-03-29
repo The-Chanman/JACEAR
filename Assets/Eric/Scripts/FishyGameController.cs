@@ -7,7 +7,7 @@ public class FishyGameController : MonoBehaviour {
 	public Vector3 size;
 	public GameObject goal;
 	public AudioSource intro;
-    public Transform sceneAnchor;
+  public Transform sceneAnchor;
   public float spawnTimerDelay = 10;
 	private float spawnTimer;
 

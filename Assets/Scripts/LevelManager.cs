@@ -64,7 +64,7 @@ public class LevelManager : MonoBehaviour {
                     //GAME ENDS AND TALLYS YOUR SCORE
                     gameEnd = true;
                     newGameButton.SetActive(true);
-       		 		endButton.SetActive(false);
+       		 		      endButton.SetActive(false);
                     Title.SetActive(false);
                     GameOver.SetActive(true);
 
@@ -75,7 +75,7 @@ public class LevelManager : MonoBehaviour {
                 UnloadScene(sceneToUnLoad);
                 //Debug.Log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ We are going to load this scene: " + currentIndex);
                 if(!gameEnd){
-					LoadNextScene(currentIndex);
+					        LoadNextScene(currentIndex);
 	                curTime = timeTillNextLevel;
                 }
 
@@ -104,7 +104,7 @@ public class LevelManager : MonoBehaviour {
     {
 
         gameStart = true;
-		gameEnd = false;
+		    gameEnd = false;
         LoadNextScene(startingLevel);
         curTime = timeTillNextLevel;
         newGameButton.SetActive(false);
@@ -116,7 +116,12 @@ public class LevelManager : MonoBehaviour {
 
     public void endGame()
     {
-        //Resets Score
+        // Check for game ended
+        if (Globals.highscore < Globals.score) {
+          Globals.highscore = Globals.score;
+        }
+
+        // Resets Score
         Globals.score = 0;
         sceneToUnLoad = currentIndex;
         UnloadScene(sceneToUnLoad);
