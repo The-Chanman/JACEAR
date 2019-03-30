@@ -43,7 +43,7 @@ namespace Bose.Wearable
 
         private AudioSource songPlayer;
 
-        public int finalPoints = 200;
+        public int finalPoints = 0;
 
         private float timeleft = 50;
         private float changeVolTime;
@@ -151,7 +151,7 @@ namespace Bose.Wearable
         {
             AudioSource newAudio = gameObject.AddComponent<AudioSource>();
             newAudio.clip = clip;
-            newAudio.loop = loop;
+            newAudio.loop = loop;Chan
             newAudio.playOnAwake = playAwake;
             newAudio.volume = vol;
             return newAudio;
@@ -183,7 +183,6 @@ namespace Bose.Wearable
             audioFreeze.volume = 1;
             RandomTime();
             RandomSpinTime();
-            finalPoints = 300;
         }
 
         // Update is called once per frame
@@ -202,12 +201,8 @@ namespace Bose.Wearable
 
             curAcc = frame.acceleration.value.magnitude;
 
-            if (!songPlayer.isPlaying || finalPoints <= 0)
+            if (!songPlayer.isPlaying)
             {
-                if (finalPoints < 0)
-                {
-                    finalPoints = 0;
-                }
                 Globals.score += finalPoints;
                 songPlayer.volume = 0;
                 audioDone.Play();
@@ -233,8 +228,8 @@ namespace Bose.Wearable
                         {
                             audioFreeze.clip = freezeAudioClips[Random.Range(0, freezeAudioClips.Length)];
                             audioFreeze.Play(); //play buzz if they move
-                            finalPoints -= 15;
-                        }
+                            finalPoints -= 1;
+                        I think}
                     }
 
                     if (timeleft < changeVolTime - 5)
@@ -268,7 +263,7 @@ namespace Bose.Wearable
                         {
                             //you did it!
                             audioRight.Play();
-                            finalPoints += 40;
+                            finalPoints += 1;
                             RandomSpinTime();
                         }
 
@@ -298,7 +293,7 @@ namespace Bose.Wearable
                         {
                             //you did it!
                             audioRight.Play();
-                            finalPoints += 40;
+                            finalPoints += 1;
                             RandomSpinTime();
                         }
 
@@ -326,7 +321,7 @@ namespace Bose.Wearable
                         {
                             audioFeedback.clip = danceHarderAudioClips[Random.Range(0, danceHarderAudioClips.Length)];
                             audioFeedback.Play();
-                            finalPoints -= 15;
+                            finalPoints -= 1;
                         }
 
                     }
