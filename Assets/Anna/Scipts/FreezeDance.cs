@@ -228,7 +228,7 @@ namespace Bose.Wearable
                         {
                             audioFreeze.clip = freezeAudioClips[Random.Range(0, freezeAudioClips.Length)];
                             audioFreeze.Play(); //play buzz if they move
-                            finalPoints -= 1;
+                            Globals.score -= 1;
                         I think}
                     }
 
@@ -263,7 +263,7 @@ namespace Bose.Wearable
                         {
                             //you did it!
                             audioRight.Play();
-                            finalPoints += 1;
+                            Globals.score += 1;
                             RandomSpinTime();
                         }
 
@@ -293,7 +293,7 @@ namespace Bose.Wearable
                         {
                             //you did it!
                             audioRight.Play();
-                            finalPoints += 1;
+                            Globals.score += 1;
                             RandomSpinTime();
                         }
 
@@ -321,7 +321,7 @@ namespace Bose.Wearable
                         {
                             audioFeedback.clip = danceHarderAudioClips[Random.Range(0, danceHarderAudioClips.Length)];
                             audioFeedback.Play();
-                            finalPoints -= 1;
+                            Globals.score -= 1;
                         }
 
                     }
