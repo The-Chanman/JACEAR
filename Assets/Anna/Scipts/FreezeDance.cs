@@ -151,7 +151,7 @@ namespace Bose.Wearable
         {
             AudioSource newAudio = gameObject.AddComponent<AudioSource>();
             newAudio.clip = clip;
-            newAudio.loop = loop;Chan
+            newAudio.loop = loop;
             newAudio.playOnAwake = playAwake;
             newAudio.volume = vol;
             return newAudio;
@@ -229,7 +229,7 @@ namespace Bose.Wearable
                             audioFreeze.clip = freezeAudioClips[Random.Range(0, freezeAudioClips.Length)];
                             audioFreeze.Play(); //play buzz if they move
                             Globals.score -= 1;
-                        I think}
+                        }
                     }
 
                     if (timeleft < changeVolTime - 5)
