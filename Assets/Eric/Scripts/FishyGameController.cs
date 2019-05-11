@@ -8,7 +8,7 @@ public class FishyGameController : MonoBehaviour {
 	public GameObject goal;
 	public AudioSource intro;
   public Transform sceneAnchor;
-  public float spawnTimerDelay = 10;
+  public float spawnTimerDelay = 100;
 	private float spawnTimer;
 
 	// Use this for initialization

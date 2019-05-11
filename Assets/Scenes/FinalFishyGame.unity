@@ -269,7 +269,7 @@ MonoBehaviour:
   goal: {fileID: 1062487110731444, guid: 552a69ca23b7f0248a70e56e2806f5ac, type: 2}
   intro: {fileID: 2012874046}
   sceneAnchor: {fileID: 416129905}
-  spawnTimerDelay: 6
+  spawnTimerDelay: 12
 --- !u!4 &2012874048
 Transform:
   m_ObjectHideFlags: 0
